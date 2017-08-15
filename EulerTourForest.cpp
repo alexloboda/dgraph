@@ -85,39 +85,31 @@ namespace dgraph {
     Entry* Entry::succ() {
         Entry* curr = this;
         if(right == nullptr){
-            while (curr->parent != nullptr && curr->parent == curr->parent->parent->left) curr = curr->parent;
+            while (curr->parent != nullptr && curr == curr->parent->right) curr = curr->parent;
             if (curr->parent == nullptr){
                 return nullptr;
             }
-            curr = curr->parent;
-            if(curr->right == nullptr){
-                return nullptr;
-            }
-            curr = curr->right;
+            return curr->parent;
         } else {
             curr = right;
+            while(curr->left != nullptr) curr = curr->left;
+            return curr;
         }
-        while(curr->left != nullptr) curr = curr->left;
-        return curr;
     }
 
     Entry* Entry::pred() {
         Entry* curr = this;
         if(left == nullptr){
-            while (curr->parent != nullptr && curr->parent == curr->parent->parent->right) curr = curr->parent;
+            while (curr->parent != nullptr && curr == curr->parent->left) curr = curr->parent;
             if (curr->parent == nullptr){
                 return nullptr;
             }
-            curr = curr->parent;
-            if(curr->left == nullptr){
-                return nullptr;
-            }
-            curr = curr->left;
+            return curr->parent;
         } else {
             curr = left;
+            while (curr->right != nullptr) curr = curr->right;
+            return curr;
         }
-        while(curr->right != nullptr) curr = curr->right;
-        return curr;
     }
 
     std::pair<Entry*, Entry*> split(Entry* e, bool keep_in_left) {
@@ -180,5 +172,4 @@ namespace dgraph {
     bool EulerTourForest::is_connected(int v, int u) {
         return findRoot(first[v]) == findRoot(first[u]);
     }
-
 }
