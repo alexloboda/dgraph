@@ -24,28 +24,49 @@ namespace dgraph {
 
     void Entry::remove() {
         splay();
-        left->parent = nullptr;
-        right->parent = nullptr;
+        if (left != nullptr) {
+            left->parent = nullptr;
+        }
+        if (right != nullptr) {
+            right->parent = nullptr;
+        }
+        if (left == nullptr){
+            return;
+        }
+        if (right == nullptr){
+            return;
+        }
         merge(left, right);
     }
 
-    void Entry::rotate(bool direction) {
-        if (direction) {
-            left = left->right;
-            left->parent = this;
-            left->right = this;
-            left->parent = parent;
-            parent = left;
+    void Entry::rotate(bool left_rotate){
+        // TODO : speed up?
+        Entry* child = nullptr;
+        if(left_rotate) {
+            child = left;
+            left = child->right;
+            if (left != nullptr) {
+                left->parent = this;
+            }
+            child->right = this;
+            child->parent = parent;
+            parent = child;
         } else {
-            right = right->left;
-            right->parent = this;
-            right->left = this;
-            right->parent = parent;
-            parent = right;
+            child = right;
+            right = child->left;
+            if (right != nullptr) {
+                right->parent = this;
+            }
+            child->left = this;
+            child->parent = parent;
+            parent = child;
         }
     }
 
     void merge(Entry* l, Entry* r) {
+        if (l == nullptr || r == nullptr){
+            return;
+        }
         r = findRoot(r);
         l = findRoot(l);
         while (l->right != nullptr) l = l->right;
@@ -99,7 +120,7 @@ namespace dgraph {
         return curr;
     }
 
-    std::pair<Entry*, Entry*> dgraph::split(Entry* e, bool keep_in_left) {
+    std::pair<Entry*, Entry*> split(Entry* e, bool keep_in_left) {
         e->splay();
         Entry* left;
         Entry* right;
@@ -107,12 +128,16 @@ namespace dgraph {
             left = e;
             right = e->right;
             e->right = nullptr;
-            right->parent = nullptr;
+            if (right != nullptr) {
+                right->parent = nullptr;
+            }
         } else {
             left = e->left;
             right = e;
             e->left = nullptr;
-            left->parent = nullptr;
+            if (left != nullptr) {
+                left->parent = nullptr;
+            }
         }
         return std::make_pair(left, right);
     }
@@ -127,13 +152,13 @@ namespace dgraph {
 
     void EulerTourForest::link(int v, int u) {
         auto cut = split(last[v], false);
-        Entry* node = new Entry(nullptr, nullptr, nullptr, v);
+        auto* node = new Entry(nullptr, nullptr, nullptr, v);
         if(first[v] == last[v]){
             first[v] = node;
         }
+        merge(node, first[u]);
         merge(cut.first, node);
-        merge(cut.first, first[u]);
-        merge(cut.first, cut.second);
+        merge(node, cut.second);
     }
 
     void EulerTourForest::cut(int v) {
