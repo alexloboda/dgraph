@@ -12,12 +12,19 @@ class Entry {
     Entry* right;
     Entry* parent;
     int v;
-    Entry(Entry*, Entry*, Entry, int);
+    Entry(Entry*, Entry*, Entry*, int);
 
     Entry* splay();
-    friend void rotate(Entry*, bool);
+    void rotate(bool);
+    void remove();
+    Entry* succ();
+    Entry* pred();
+
     friend void merge(Entry*, Entry*);
+    friend std::pair<Entry*, Entry*> split(Entry*, bool);
     friend Entry* findRoot(Entry* e);
+
+    friend class EulerTourForest;
 };
 
 class EulerTourForest {
@@ -25,13 +32,11 @@ class EulerTourForest {
     std::vector<Entry*> first;
     std::vector<Entry*> last;
 public:
-    EulerTourForest(int);
+    explicit EulerTourForest(int);
 
     bool is_connected(int v, int u);
-
     Entry* link(int v, int u);
-
-    void cut(int v, int u);
+    void cut(int v);
 };
 
 }
