@@ -35,7 +35,7 @@ public:
     explicit EulerTourForest(int);
 
     bool is_connected(int v, int u);
-    Entry* link(int v, int u);
+    void link(int v, int u);
     void cut(int v);
 };
 

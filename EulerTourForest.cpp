@@ -30,7 +30,6 @@ namespace dgraph {
     }
 
     void Entry::rotate(bool direction) {
-        // TODO : speed up?
         if (direction) {
             left = left->right;
             left->parent = this;
@@ -47,12 +46,12 @@ namespace dgraph {
     }
 
     void merge(Entry* l, Entry* r) {
-        Entry* e = l;
-        e = findRoot(e);
-        while (e->right != nullptr) e = e->right;
-        e->splay();
-        e->right = r;
-        r->parent = e;
+        r = findRoot(r);
+        l = findRoot(l);
+        while (l->right != nullptr) l = l->right;
+        l->splay();
+        l->right = r;
+        r->parent = l;
     }
 
     Entry* findRoot(Entry* e) {
@@ -120,20 +119,34 @@ namespace dgraph {
 
     EulerTourForest::EulerTourForest(int _n) : n(_n) {
         for (int i = 0; i < n; i++) {
-            auto* in = new Entry(nullptr, nullptr, nullptr, i);
-            auto* out = new Entry(nullptr, nullptr, in, i);
-            in->right = out;
-            first.push_back(in);
-            last.push_back(out);
+            auto* vertex = new Entry(nullptr, nullptr, nullptr, i);
+            first.push_back(vertex);
+            last.push_back(vertex);
         }
     }
 
-    Entry* EulerTourForest::link(int v, int u) {
-
+    void EulerTourForest::link(int v, int u) {
+        auto cut = split(last[v], false);
+        Entry* node = new Entry(nullptr, nullptr, nullptr, v);
+        if(first[v] == last[v]){
+            first[v] = node;
+        }
+        merge(cut.first, node);
+        merge(cut.first, first[u]);
+        merge(cut.first, cut.second);
     }
 
     void EulerTourForest::cut(int v) {
-        // TODO : delete one occurence of v's parent
+        Entry* prev = first[v]->pred();
+        if(prev != first[prev->v]){
+            prev->remove();
+        } else {
+            Entry* next = last[v]->succ();
+            if(next == last[next->v]){
+                last[next->v] = prev;
+            }
+            next->remove();
+        }
         auto left_cut = split(first[v], false);
         auto right_cut = split(left_cut.second, true);
         merge(left_cut.first, right_cut.second);
