@@ -90,11 +90,11 @@ namespace dgraph {
                 return nullptr;
             }
             return curr->parent;
-        } else {
-            curr = right;
-            while(curr->left != nullptr) curr = curr->left;
-            return curr;
         }
+        curr = right;
+        while(curr->left != nullptr) curr = curr->left;
+        return curr;
+
     }
 
     Entry* Entry::pred() {
@@ -105,11 +105,10 @@ namespace dgraph {
                 return nullptr;
             }
             return curr->parent;
-        } else {
-            curr = left;
-            while (curr->right != nullptr) curr = curr->right;
-            return curr;
         }
+        curr = left;
+        while (curr->right != nullptr) curr = curr->right;
+        return curr;
     }
 
     std::pair<Entry*, Entry*> split(Entry* e, bool keep_in_left) {
