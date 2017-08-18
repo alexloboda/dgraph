@@ -4,10 +4,12 @@
 #include "EulerTourForest.h"
 
 namespace dgraph {
+    using std::vector;
 
     class DynamicGraph {
         int n;
-        std::vector<EulerTourForest> forests;
+        vector<EulerTourForest> forests;
+        vector<vector<List*>> adjLists;
     public:
         explicit DynamicGraph(int n);
         Edge* add(int v, int u);
@@ -16,13 +18,15 @@ namespace dgraph {
     };
 
     class List {
-
-    };
-
-    class AdjList {
-        std::vector<List> adj;
+        Edge* edge;
+        int u;
+        List* next;
+        List* prev;
+        List(int, Edge*, List*, List*);
     public:
-        explicit AdjList(int);
+        List() = default;
+        List* add(int, Edge*);
+        void remove();
     };
 
 }

@@ -2,6 +2,10 @@
 
 namespace dgraph {
 
-    Edge::Edge(int lvl) : lvl(lvl) {}
+    Edge::Edge(unsigned long lvl) : lvl(lvl) {}
+
+    void Edge::subscribe(List* link) {
+        links.push_back(link);
+    }
 }
 

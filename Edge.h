@@ -2,13 +2,16 @@
 #define DGRAPH_EDGE_H
 
 #include "EulerTourForest.h"
+#include "DynamicGraph.h"
 
 namespace dgraph {
 
     class Edge {
-        int lvl;
+        unsigned long lvl;
+        std::vector<List*> links;
     public:
-        Edge(int);
+        explicit Edge(unsigned long);
+        void subscribe(List*);
     };
 
 }
