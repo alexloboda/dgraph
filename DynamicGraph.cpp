@@ -40,7 +40,7 @@ namespace dgraph {
         return newList;
     }
 
-    void List::remove() {
+    List::~List() {
         if(next != nullptr){
             next->prev = prev;
         }
@@ -49,4 +49,16 @@ namespace dgraph {
     }
 
     List::List(int u, Edge* edge, List* prev, List* next) :u(u), edge(edge), prev(prev), next(next){}
+
+    Edge::Edge(unsigned long lvl) : lvl(lvl) {}
+
+    void Edge::subscribe(List* link) {
+        links.push_back(link);
+    }
+
+    Edge::~Edge() {
+        for (List* link : links){
+            delete link;
+        }
+    }
 }

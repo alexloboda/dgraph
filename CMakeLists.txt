@@ -3,5 +3,5 @@ project(dgraph)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp DynamicGraph.cpp DynamicGraph.h EulerTourForest.cpp EulerTourForest.h Edge.cpp Edge.h)
+set(SOURCE_FILES main.cpp DynamicGraph.cpp DynamicGraph.h EulerTourForest.cpp EulerTourForest.h)
 add_executable(dgraph ${SOURCE_FILES})

@@ -6,6 +6,17 @@
 namespace dgraph {
     using std::vector;
 
+    class List;
+
+    class Edge {
+        unsigned long lvl;
+        std::vector<List*> links;
+    public:
+        explicit Edge(unsigned long);
+        ~Edge();
+        void subscribe(List*);
+    };
+
     class DynamicGraph {
         int n;
         vector<EulerTourForest> forests;
@@ -26,7 +37,7 @@ namespace dgraph {
     public:
         List() = default;
         List* add(int, Edge*);
-        void remove();
+        ~List();
     };
 
 }

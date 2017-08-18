@@ -61,6 +61,8 @@ namespace dgraph {
             child->parent = parent;
             parent = child;
         }
+        recalc();
+        child->recalc();
     }
 
     void merge(Entry* l, Entry* r) {
@@ -73,6 +75,7 @@ namespace dgraph {
         l->splay();
         l->right = r;
         r->parent = l;
+        l->recalc();
     }
 
     Entry* findRoot(Entry* e) {
@@ -94,7 +97,6 @@ namespace dgraph {
         curr = right;
         while(curr->left != nullptr) curr = curr->left;
         return curr;
-
     }
 
     Entry* Entry::pred() {
@@ -119,23 +121,38 @@ namespace dgraph {
             left = e;
             right = e->right;
             e->right = nullptr;
+            left->recalc();
             if (right != nullptr) {
+                right->recalc();
                 right->parent = nullptr;
             }
         } else {
             left = e->left;
             right = e;
             e->left = nullptr;
+            right->recalc();
             if (left != nullptr) {
+                left->recalc();
                 left->parent = nullptr;
             }
         }
         return std::make_pair(left, right);
     }
 
+    void Entry::recalc() {
+        size = 1;
+        if(right != nullptr){
+            size += right->size;
+        }
+        if(left != nullptr){
+            size += left->size;
+        }
+    }
+
     EulerTourForest::EulerTourForest(int _n) : n(_n) {
         for (int i = 0; i < n; i++) {
             auto* vertex = new Entry(nullptr, nullptr, nullptr, i);
+            vertex->recalc();
             first.push_back(vertex);
             last.push_back(vertex);
         }
@@ -144,6 +161,7 @@ namespace dgraph {
     void EulerTourForest::link(int v, int u) {
         auto cut = split(last[v], false);
         auto* node = new Entry(nullptr, nullptr, nullptr, v);
+        node->recalc();
         if(first[v] == last[v]){
             first[v] = node;
         }
@@ -152,7 +170,7 @@ namespace dgraph {
         merge(node, cut.second);
     }
 
-    void EulerTourForest::cut(int v) {
+    int EulerTourForest::cut(int v) {
         Entry* prev = first[v]->pred();
         if(prev != first[prev->v]){
             prev->remove();

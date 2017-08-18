@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "Edge.h"
-
 namespace dgraph {
 
 class Entry {
@@ -12,6 +10,7 @@ class Entry {
     Entry* right;
     Entry* parent;
     int v;
+    int size;
     Entry(Entry*, Entry*, Entry*, int);
 
     Entry* splay();
@@ -19,6 +18,7 @@ class Entry {
     void remove();
     Entry* succ();
     Entry* pred();
+    void recalc();
 
     friend void merge(Entry*, Entry*);
     friend std::pair<Entry*, Entry*> split(Entry*, bool);
@@ -36,7 +36,7 @@ public:
 
     bool is_connected(int v, int u);
     void link(int v, int u);
-    void cut(int v);
+    int cut(int v);
 };
 
 }
