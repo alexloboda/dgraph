@@ -11,6 +11,7 @@ namespace dgraph {
         if (grandpa != nullptr) {
             bool p_is_left = grandpa->left == parent;
             if (is_left == p_is_left) {
+                //TODO: Bug here?
                 grandpa->rotate(p_is_left);
                 parent->rotate(is_left);
             } else {
@@ -37,6 +38,7 @@ namespace dgraph {
             return;
         }
         merge(left, right);
+        delete this;
     }
 
     void Entry::rotate(bool left_rotate){
@@ -141,11 +143,14 @@ namespace dgraph {
 
     void Entry::recalc() {
         size = 1;
+        good = edges > 0;
         if(right != nullptr){
             size += right->size;
+            good |= right->good;
         }
         if(left != nullptr){
             size += left->size;
+            good |= left->good;
         }
     }
 
@@ -188,5 +193,11 @@ namespace dgraph {
 
     bool EulerTourForest::is_connected(int v, int u) {
         return findRoot(first[v]) == findRoot(first[u]);
+    }
+
+    void EulerTourForest::changeEdges(int v, int n) {
+        first[v]->splay();
+        first[v]->edges += n;
+        first[v]->recalc();
     }
 }

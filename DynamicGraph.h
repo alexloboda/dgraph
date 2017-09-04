@@ -8,19 +8,23 @@ namespace dgraph {
 
     class List;
 
-    class Edge {
-        unsigned long lvl;
+    class Edge{
+        unsigned lvl;
         std::vector<List*> links;
     public:
-        explicit Edge(unsigned long);
+        unsigned level();
+        int where();
+        explicit Edge(unsigned);
         ~Edge();
         void subscribe(List*);
     };
 
     class DynamicGraph {
         int n;
+        int size;
         vector<EulerTourForest> forests;
         vector<vector<List*>> adjLists;
+        vector<int> parent;
     public:
         explicit DynamicGraph(int n);
         Edge* add(int v, int u);
@@ -35,9 +39,11 @@ namespace dgraph {
         List* prev;
         List(int, Edge*, List*, List*);
     public:
-        List() = default;
+        List();
         List* add(int, Edge*);
         ~List();
+
+        friend class Edge;
     };
 
 }

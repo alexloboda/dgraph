@@ -2,6 +2,7 @@
 #define DGRAPH_EULERTOURTREE_H
 
 #include <vector>
+#include <iterator>
 
 namespace dgraph {
 
@@ -11,6 +12,8 @@ class Entry {
     Entry* parent;
     int v;
     int size;
+    int edges;
+    bool good;
     Entry(Entry*, Entry*, Entry*, int);
 
     Entry* splay();
@@ -37,8 +40,19 @@ public:
     bool is_connected(int v, int u);
     void link(int v, int u);
     int cut(int v);
+    void changeEdges(int v, int n);
 };
 
-}
+class GoodIterator : public virtual std::iterator {
+public:
+    std::iterator operator++(int); //postfix increment
+    int operator*() const;
+
+    pointer operator->() const;
+
+    friend bool operator==(const std::iterator &, const std::iterator &);
+
+    friend bool operator!=(const std::iterator &, const std::iterator &);
+};
 
 #endif //DGRAPH_EULERTOURTREE_H
