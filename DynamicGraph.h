@@ -45,7 +45,6 @@ namespace dgraph {
 
         friend class Edge;
     };
-
 }
 
 #endif //DGRAPH_DYNAMICGRAPH_H

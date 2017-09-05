@@ -200,4 +200,55 @@ namespace dgraph {
         first[v]->edges += n;
         first[v]->recalc();
     }
+
+    Iterator::Iterator(Entry* entry) :entry(entry){}
+
+    Iterator Iterator::operator++(int) {
+        if (entry->right != nullptr && entry->right->good){
+            entry = entry->right;
+            while (true){
+                if (entry->left != nullptr && entry->left->good){
+                    entry = entry->left;
+                    continue;
+                }
+                if(entry->edges > 0){
+                    return *this;
+                }
+                entry = entry->right;
+            }
+        }
+        if (entry->parent == nullptr){
+            entry = nullptr;
+            return *this;
+        }
+        entry = entry->parent;
+        if (entry->edges > 0){
+            return *this;
+        }
+        return (*this)++;
+    }
+
+    int Iterator::operator*() {
+        return entry->v;
+    }
+
+    bool operator==(const Iterator& lhs, const Iterator& rhs) {
+        return lhs.entry == rhs.entry;
+    }
+
+    bool operator!=(const Iterator& lhs, const Iterator& rhs) {
+        return lhs.entry != rhs.entry;
+    }
+
+    Iterator Entry::begin() {
+        Entry* curr = findRoot(this);
+        while (curr->left != nullptr) curr = curr->left;
+        Iterator iterator(curr);
+        iterator++;
+        return iterator;
+    }
+
+    Iterator Entry::end() {
+        return Iterator(nullptr);
+    }
 }
