@@ -41,9 +41,22 @@ namespace dgraph {
     public:
         List();
         List* add(int, Edge*);
+        ListIterator iterator();
+        int vertex();
+        Edge* e();
         ~List();
 
         friend class Edge;
+        friend class ListIterator;
+    };
+
+    class ListIterator {
+        List* list;
+    public:
+        explicit ListIterator(List*);
+        ListIterator operator++(int);
+        List* operator*();
+        bool hasNext();
     };
 }
 

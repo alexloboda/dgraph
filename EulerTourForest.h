@@ -30,8 +30,7 @@ namespace dgraph {
         friend class EulerTourForest;
         friend class Iterator;
 
-        Iterator begin();
-        Iterator end();
+        Iterator iterator();
     };
 
     class Iterator {
@@ -40,8 +39,7 @@ namespace dgraph {
         explicit Iterator(Entry*);
         Iterator operator++(int);
         int operator*();
-        friend bool operator==(const Iterator&, const Iterator&);
-        friend bool operator!=(const Iterator&, const Iterator&);
+        bool hasNext();
     };
 
     class EulerTourForest {
@@ -54,6 +52,8 @@ namespace dgraph {
         void link(int v, int u);
         int cut(int v);
         void changeEdges(int v, int n);
+        int size(int v);
+        Iterator iterator(int v);
     };
 }
 

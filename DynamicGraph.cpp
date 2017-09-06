@@ -1,6 +1,7 @@
 #include "DynamicGraph.h"
 
 #include <cmath>
+#include <utility>
 
 namespace dgraph {
 
@@ -38,7 +39,31 @@ namespace dgraph {
             }
             for (int i = level; i < size; i++){
                 // find new connection
+                // to do that choose less component
+                if(forests[i].size(v) > forests[i].size(u)){
+                    std::swap(v, u);
+                }
+                // and iterate over good vertices until success
+                Iterator it = forests[i].iterator(v);
+                while(it.hasNext()){
+                    int w = *it;
+                    ListIterator lit = adjLists[i][w]->iterator();
+                    while(lit.hasNext()){
+                        int up = (*lit)->vertex();
+                        if(is_connected(up, u)){
+                            for (int j = i; j < size; j++){
+                                forests[j].link(w, up);
+                                parent[up] = w;
+                            }
+                            return;
+                        } else {
+                            //downgrade it or die
 
+                        }
+                        lit++;
+                    }
+                    it++;
+                }
             }
         }
     }
@@ -66,6 +91,18 @@ namespace dgraph {
         prev = this;
     }
 
+    ListIterator List::iterator() {
+        return ListIterator(next);
+    }
+
+    int List::vertex() {
+        return u;
+    }
+
+    Edge* List::e() {
+        return edge;
+    }
+
     Edge::Edge(unsigned lvl) : lvl(lvl) {}
 
     void Edge::subscribe(List* link) {
@@ -84,5 +121,19 @@ namespace dgraph {
 
     unsigned Edge::level() {
         return lvl;
+    }
+
+    ListIterator::ListIterator(List* list) :list(list) {}
+
+    ListIterator ListIterator::operator++(int) {
+        return ListIterator(list->next);
+    }
+
+    List* ListIterator::operator*() {
+        return list;
+    }
+
+    bool ListIterator::hasNext() {
+        return list->edge != nullptr;
     }
 }

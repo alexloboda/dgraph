@@ -201,6 +201,14 @@ namespace dgraph {
         first[v]->recalc();
     }
 
+    int EulerTourForest::size(int v) {
+        return findRoot(first[v])->size;
+    }
+
+    Iterator EulerTourForest::iterator(int v){
+        return first[v]->iterator();
+    }
+
     Iterator::Iterator(Entry* entry) :entry(entry){}
 
     Iterator Iterator::operator++(int) {
@@ -232,23 +240,15 @@ namespace dgraph {
         return entry->v;
     }
 
-    bool operator==(const Iterator& lhs, const Iterator& rhs) {
-        return lhs.entry == rhs.entry;
+    bool Iterator::hasNext() {
+        return entry != nullptr;
     }
 
-    bool operator!=(const Iterator& lhs, const Iterator& rhs) {
-        return lhs.entry != rhs.entry;
-    }
-
-    Iterator Entry::begin() {
+    Iterator Entry::iterator() {
         Entry* curr = findRoot(this);
         while (curr->left != nullptr) curr = curr->left;
         Iterator iterator(curr);
         iterator++;
         return iterator;
-    }
-
-    Iterator Entry::end() {
-        return Iterator(nullptr);
     }
 }
