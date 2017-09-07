@@ -57,8 +57,7 @@ namespace dgraph {
                             }
                             return;
                         } else {
-                            //downgrade it or die
-
+                            downgrade(w, up, (*lit)->e());
                         }
                         lit++;
                     }
@@ -66,6 +65,18 @@ namespace dgraph {
                 }
             }
         }
+    }
+
+    void DynamicGraph::downgrade(int v, int w, Edge* e){
+        int lvl = e->level();
+        e->levelDown();
+        e->removeLinks();
+        e->subscribe(adjLists[lvl - 1][w]->add(v, e));
+        e->subscribe(adjLists[lvl - 1][v]->add(w, e));
+        forests[lvl].changeEdges(w, -1);
+        forests[lvl].changeEdges(v, -1);
+        forests[lvl - 1].changeEdges(w, 1);
+        forests[lvl - 1].changeEdges(v, 1);
     }
 
     bool DynamicGraph::is_connected(int v, int u) {
@@ -121,6 +132,16 @@ namespace dgraph {
 
     unsigned Edge::level() {
         return lvl;
+    }
+
+    void Edge::levelDown() {
+        lvl--;
+    }
+
+    void Edge::removeLinks() {
+        for(List* l: links){
+            delete l;
+        }
     }
 
     ListIterator::ListIterator(List* list) :list(list) {}

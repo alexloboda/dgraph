@@ -16,7 +16,9 @@ namespace dgraph {
         int where();
         explicit Edge(unsigned);
         ~Edge();
+        void levelDown();
         void subscribe(List*);
+        void removeLinks();
     };
 
     class DynamicGraph {
@@ -25,6 +27,7 @@ namespace dgraph {
         vector<EulerTourForest> forests;
         vector<vector<List*>> adjLists;
         vector<int> parent;
+        void downgrade(int v, int w, Edge* e);
     public:
         explicit DynamicGraph(int n);
         Edge* add(int v, int u);
