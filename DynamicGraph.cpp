@@ -9,7 +9,10 @@ namespace dgraph {
         size = std::lround(std::ceil(std::log2(n)) + 1);
         for (int i = 0; i < size; i++) {
             forests.emplace_back(n);
-            adjLists.emplace_back(n, new List());
+            adjLists.emplace_back();
+            for (int j = 0; j < n; j++){
+                adjLists[i].push_back(new List());
+            }
         }
     }
 
@@ -57,9 +60,8 @@ namespace dgraph {
                             }
                             return;
                         } else {
-                            downgrade(w, up, (*lit)->e());
+                            downgrade(w, up, (*(lit++))->e());
                         }
-                        lit++;
                     }
                     it++;
                 }
@@ -109,6 +111,7 @@ namespace dgraph {
     List::List() {
         next = this;
         prev = this;
+        u = -1;
     }
 
     ListIterator List::iterator() {
@@ -151,12 +154,15 @@ namespace dgraph {
         for(List* l: links){
             delete l;
         }
+        links.clear();
     }
 
     ListIterator::ListIterator(List* list) :list(list) {}
 
     ListIterator ListIterator::operator++(int) {
-        return ListIterator(list->next);
+        ListIterator state(list);
+        list = list->next;
+        return state;
     }
 
     List* ListIterator::operator*() {

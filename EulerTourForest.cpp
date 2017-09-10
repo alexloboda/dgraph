@@ -167,6 +167,8 @@ namespace dgraph {
         node->recalc();
         if(first[v] == last[v]){
             first[v] = node;
+            first[v]->edges = last[v]->edges;
+            last[v]->edges = 0;
         }
         merge(node, first[u]);
         merge(cut.first, node);
@@ -259,7 +261,9 @@ namespace dgraph {
         Entry* curr = findRoot(this);
         while (curr->left != nullptr) curr = curr->left;
         Iterator iterator(curr);
-        iterator++;
+        if(!curr->good) {
+            iterator++;
+        }
         return iterator;
     }
 
