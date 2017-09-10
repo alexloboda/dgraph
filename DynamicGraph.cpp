@@ -83,6 +83,15 @@ namespace dgraph {
         return forests[forests.size() - 1].is_connected(v, u);
     }
 
+    std::string to_string(DynamicGraph& graph) {
+        std::string str;
+        for(int i = 0; i < graph.size; i++){
+            str += "level " + std::to_string(i) + ": \n";
+            str += to_string(graph.forests[i]) + "\n";
+        }
+        return str;
+    }
+
     List* List::add(int v, Edge* edge) {
         auto* newList = new List(v, edge, this, next);
         next->prev = newList;

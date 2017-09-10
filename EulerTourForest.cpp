@@ -11,7 +11,6 @@ namespace dgraph {
         if (grandpa != nullptr) {
             bool p_is_left = grandpa->left == parent;
             if (is_left == p_is_left) {
-                //TODO: Bug here?
                 grandpa->rotate(p_is_left);
                 parent->rotate(is_left);
             } else {
@@ -42,7 +41,6 @@ namespace dgraph {
     }
 
     void Entry::rotate(bool left_rotate){
-        // TODO : speed up?
         Entry* child = nullptr;
         if(left_rotate) {
             child = left;
@@ -187,7 +185,7 @@ namespace dgraph {
             next->remove();
         }
         auto left_cut = split(first[v], false);
-        auto right_cut = split(left_cut.second, true);
+        auto right_cut = split(last[v], true);
         merge(left_cut.first, right_cut.second);
     }
 
@@ -207,6 +205,19 @@ namespace dgraph {
 
     Iterator EulerTourForest::iterator(int v){
         return first[v]->iterator();
+    }
+
+    std::string to_string(EulerTourForest& graph) {
+        std::string str;
+        std::vector<bool> vis(graph.n, false);
+        for(int i = 0; i < graph.n; i++){
+            Entry* curr = findRoot(graph.first[i]);
+            if(!vis[curr->vertex()]){
+                vis[curr->vertex()] = true;
+                str += to_string(curr) + "\n";
+            }
+        }
+        return str;
     }
 
     Iterator::Iterator(Entry* entry) :entry(entry){}
@@ -250,5 +261,19 @@ namespace dgraph {
         Iterator iterator(curr);
         iterator++;
         return iterator;
+    }
+
+    int Entry::vertex() {
+        return v;
+    }
+
+    std::string to_string(Entry* e) {
+        std::string str;
+        while(e->left != nullptr) e = e->left;
+        while(e != nullptr){
+            str += std::to_string(e->v);
+            e = e->succ();
+        }
+        return str;
     }
 }

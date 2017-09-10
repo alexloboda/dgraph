@@ -2,6 +2,7 @@
 #define DGRAPH_EULERTOURTREE_H
 
 #include <vector>
+#include <string>
 
 namespace dgraph {
     class Iterator;
@@ -31,6 +32,10 @@ namespace dgraph {
         friend class Iterator;
 
         Iterator iterator();
+    public:
+        int vertex();
+
+        friend std::string to_string(Entry*);
     };
 
     class Iterator {
@@ -54,6 +59,8 @@ namespace dgraph {
         void changeEdges(int v, int n);
         int size(int v);
         Iterator iterator(int v);
+
+        friend std::string to_string(EulerTourForest&);
     };
 }
 

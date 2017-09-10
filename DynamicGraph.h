@@ -7,6 +7,7 @@ namespace dgraph {
     using std::vector;
 
     class List;
+    class ListIterator;
 
     class Edge{
         unsigned lvl;
@@ -33,6 +34,8 @@ namespace dgraph {
         Edge* add(int v, int u);
         void remove(Edge*);
         bool is_connected(int v, int u);
+
+        friend std::string to_string(DynamicGraph&);
     };
 
     class List {
