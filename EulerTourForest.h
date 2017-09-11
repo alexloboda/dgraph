@@ -23,6 +23,7 @@ namespace dgraph {
         Entry* succ();
         Entry* pred();
         void recalc();
+        Iterator iterator();
 
         friend void merge(Entry*, Entry*);
         friend std::pair<Entry*, Entry*> split(Entry*, bool);
@@ -31,7 +32,7 @@ namespace dgraph {
         friend class EulerTourForest;
         friend class Iterator;
 
-        Iterator iterator();
+        friend void makeRoot(Entry* e);
     public:
         int vertex();
 

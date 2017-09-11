@@ -287,4 +287,18 @@ namespace dgraph {
         }
         return str;
     }
+
+    void dgraph::makeRoot(Entry* e) {
+        if (e->pred() == nullptr){
+            return;
+        }
+        Entry* curr = findRoot(e);
+        while (curr->right != nullptr) curr = curr->right;
+        split(curr, false);
+        auto cut = split(e, false);
+        merge(cut.second, cut.first);
+        auto* node = new Entry(nullptr, nullptr, nullptr, e->v);
+        node->recalc();
+        merge(e, node);
+    }
 }
