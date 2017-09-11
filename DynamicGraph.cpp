@@ -63,7 +63,7 @@ namespace dgraph {
                             downgrade(w, up, (*(lit++))->e());
                         }
                     }
-                    it++;
+                    ++it;
                 }
             }
         }

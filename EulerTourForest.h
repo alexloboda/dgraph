@@ -42,7 +42,7 @@ namespace dgraph {
         Entry* entry;
     public:
         explicit Iterator(Entry*);
-        Iterator operator++(int);
+        Iterator& operator++();
         int operator*();
         bool hasNext();
     };

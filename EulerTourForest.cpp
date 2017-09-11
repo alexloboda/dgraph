@@ -224,7 +224,7 @@ namespace dgraph {
 
     Iterator::Iterator(Entry* entry) :entry(entry){}
 
-    Iterator Iterator::operator++(int) {
+    Iterator& Iterator::operator++() {
         if (entry->right != nullptr && entry->right->good){
             entry = entry->right;
             while (true){
@@ -238,15 +238,22 @@ namespace dgraph {
                 entry = entry->right;
             }
         }
-        if (entry->parent == nullptr){
-            entry = nullptr;
-            return *this;
+        while (true) {
+            if (entry->parent == nullptr) {
+                entry = nullptr;
+                return *this;
+            }
+            if (entry->parent->right != nullptr && entry->parent->right == entry){
+                entry = entry->parent;
+                continue;
+            } else {
+                break;
+            }
         }
-        entry = entry->parent;
         if (entry->edges > 0){
             return *this;
         }
-        return (*this)++;
+        return ++(*this);
     }
 
     int Iterator::operator*() {
@@ -262,7 +269,7 @@ namespace dgraph {
         while (curr->left != nullptr) curr = curr->left;
         Iterator iterator(curr);
         if(!curr->good) {
-            iterator++;
+            ++iterator;
         }
         return iterator;
     }
