@@ -14,15 +14,17 @@ namespace dgraph {
         int v;
         int size;
         int edges;
-        bool good;
 
         Entry(Entry*, Entry*, Entry*, int);
-        Entry* splay();
+        void splay();
         void rotate(bool);
         void remove();
         Entry* succ();
         Entry* pred();
+        Entry* leftmost();
+        Entry* rightmost();
         void recalc();
+        bool good();
         Iterator iterator();
 
         friend void merge(Entry*, Entry*);
@@ -32,7 +34,6 @@ namespace dgraph {
         friend class EulerTourForest;
         friend class Iterator;
 
-        friend void makeRoot(Entry* e);
     public:
         int vertex();
 
@@ -52,6 +53,7 @@ namespace dgraph {
         int n;
         std::vector<Entry*> first;
         std::vector<Entry*> last;
+        void make_root(int v);
     public:
         explicit EulerTourForest(int);
         bool is_connected(int v, int u);

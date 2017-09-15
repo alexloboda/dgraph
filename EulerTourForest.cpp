@@ -2,23 +2,22 @@
 
 namespace dgraph {
 
-    Entry* Entry::splay() {
-        if (parent == nullptr) {
-            return this;
-        }
-        Entry* grandpa = parent->parent;
-        bool is_left = parent->left == this;
-        if (grandpa != nullptr) {
-            bool p_is_left = grandpa->left == parent;
-            if (is_left == p_is_left) {
-                grandpa->rotate(p_is_left);
-                parent->rotate(is_left);
+    void Entry::splay() {
+        while (parent != nullptr) {
+            Entry* grandpa = parent->parent;
+            bool is_left = parent->left == this;
+            if (grandpa != nullptr) {
+                bool p_is_left = grandpa->left == parent;
+                if (is_left == p_is_left) {
+                    grandpa->rotate(p_is_left);
+                    parent->rotate(is_left);
+                } else {
+                    parent->rotate(is_left);
+                    grandpa->rotate(p_is_left);
+                }
             } else {
                 parent->rotate(is_left);
-                grandpa->rotate(p_is_left);
             }
-        } else {
-            parent->rotate(is_left);
         }
     }
 
@@ -70,8 +69,8 @@ namespace dgraph {
             return;
         }
         r = findRoot(r);
-        l = findRoot(l);
-        while (l->right != nullptr) l = l->right;
+        l = findRoot(l)->rightmost();
+
         l->splay();
         l->right = r;
         r->parent = l;
@@ -83,7 +82,7 @@ namespace dgraph {
         return e;
     }
 
-    Entry::Entry(Entry* l, Entry* r, Entry* p, int v) : left(l), right(r), parent(p), v(v) {}
+    Entry::Entry(Entry* l, Entry* r, Entry* p, int v) : left(l), right(r), parent(p), v(v), size(1) {}
 
     Entry* Entry::succ() {
         Entry* curr = this;
@@ -95,7 +94,7 @@ namespace dgraph {
             return curr->parent;
         }
         curr = right;
-        while(curr->left != nullptr) curr = curr->left;
+        curr = curr->leftmost();
         return curr;
     }
 
@@ -109,7 +108,7 @@ namespace dgraph {
             return curr->parent;
         }
         curr = left;
-        while (curr->right != nullptr) curr = curr->right;
+        curr = curr->rightmost();
         return curr;
     }
 
@@ -141,21 +140,17 @@ namespace dgraph {
 
     void Entry::recalc() {
         size = 1;
-        good = edges > 0;
         if(right != nullptr){
             size += right->size;
-            good |= right->good;
         }
         if(left != nullptr){
             size += left->size;
-            good |= left->good;
         }
     }
 
     EulerTourForest::EulerTourForest(int _n) : n(_n) {
         for (int i = 0; i < n; i++) {
             auto* vertex = new Entry(nullptr, nullptr, nullptr, i);
-            vertex->recalc();
             first.push_back(vertex);
             last.push_back(vertex);
         }
@@ -164,12 +159,12 @@ namespace dgraph {
     void EulerTourForest::link(int v, int u) {
         auto cut = split(last[v], false);
         auto* node = new Entry(nullptr, nullptr, nullptr, v);
-        node->recalc();
         if(first[v] == last[v]){
             first[v] = node;
             first[v]->edges = last[v]->edges;
             last[v]->edges = 0;
         }
+        make_root(u);
         merge(node, first[u]);
         merge(cut.first, node);
         merge(node, cut.second);
@@ -222,13 +217,44 @@ namespace dgraph {
         return str;
     }
 
+    void EulerTourForest::make_root(int v) {
+        Entry* e = first[v];
+        if (e->pred() == nullptr) {
+            return;
+        }
+        Entry* root = findRoot(e);
+
+        while (true) {
+            Entry* prev = first[v]->pred();
+            Entry* next = last[v]->succ();
+            if (prev == nullptr) {
+                break;
+            }
+            last[prev->v] = prev;
+            first[next->v] = next;
+            v = prev->v;
+        }
+
+        Entry* right = root->rightmost();
+        if (first[root->v] == right){
+            first[root->v] = root->leftmost();
+        }
+        right->remove();
+
+        auto cut = split(e, false);
+        auto new_node = new Entry(nullptr, nullptr, nullptr, v);
+        last[v] = new_node;
+        merge(cut.first, new_node);
+        merge(cut.second, cut.first);
+    }
+
     Iterator::Iterator(Entry* entry) :entry(entry){}
 
     Iterator& Iterator::operator++() {
-        if (entry->right != nullptr && entry->right->good){
+        if (entry->right != nullptr && entry->right->good()){
             entry = entry->right;
             while (true){
-                if (entry->left != nullptr && entry->left->good){
+                if (entry->left != nullptr && entry->left->good()){
                     entry = entry->left;
                     continue;
                 }
@@ -265,10 +291,9 @@ namespace dgraph {
     }
 
     Iterator Entry::iterator() {
-        Entry* curr = findRoot(this);
-        while (curr->left != nullptr) curr = curr->left;
+        Entry* curr = findRoot(this)->leftmost();
         Iterator iterator(curr);
-        if(!curr->good) {
+        if(!curr->good()) {
             ++iterator;
         }
         return iterator;
@@ -280,7 +305,7 @@ namespace dgraph {
 
     std::string to_string(Entry* e) {
         std::string str;
-        while(e->left != nullptr) e = e->left;
+        e = e->leftmost();
         while(e != nullptr){
             str += std::to_string(e->v);
             e = e->succ();
@@ -288,17 +313,27 @@ namespace dgraph {
         return str;
     }
 
-    void dgraph::makeRoot(Entry* e) {
-        if (e->pred() == nullptr){
-            return;
+    bool Entry::good() {
+        int sum = 0;
+        if (left != nullptr){
+            sum += left->edges;
         }
-        Entry* curr = findRoot(e);
-        while (curr->right != nullptr) curr = curr->right;
-        split(curr, false);
-        auto cut = split(e, false);
-        merge(cut.second, cut.first);
-        auto* node = new Entry(nullptr, nullptr, nullptr, e->v);
-        node->recalc();
-        merge(e, node);
+        if (right != nullptr){
+            sum += right->edges;
+        }
+        return sum != edges;
     }
+
+    Entry* Entry::leftmost() {
+        Entry* curr = this;
+        while (curr->left != nullptr) curr = curr->left;
+        return curr;
+    }
+
+    Entry* Entry::rightmost() {
+        Entry* curr = this;
+        while (curr->right != nullptr) curr = curr->right;
+        return curr;
+    }
+
 }
