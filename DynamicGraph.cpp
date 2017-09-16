@@ -79,6 +79,12 @@ namespace dgraph {
         forests[lvl].changeEdges(v, -1);
         forests[lvl - 1].changeEdges(w, 1);
         forests[lvl - 1].changeEdges(v, 1);
+        if (parent[v] == w) {
+            forests[lvl - 1].link(v, w);
+        }
+        if (parent[w] == v) {
+            forests[lvl - 1].link(w, v);
+        }
     }
 
     bool DynamicGraph::is_connected(int v, int u) {
