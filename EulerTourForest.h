@@ -29,7 +29,7 @@ namespace dgraph {
 
         friend void merge(Entry*, Entry*);
         friend std::pair<Entry*, Entry*> split(Entry*, bool);
-        friend Entry* findRoot(Entry* e);
+        friend Entry* find_root(Entry* e);
 
         friend class EulerTourForest;
         friend class Iterator;

@@ -68,8 +68,8 @@ namespace dgraph {
         if (l == nullptr || r == nullptr){
             return;
         }
-        r = findRoot(r);
-        l = findRoot(l)->rightmost();
+        r = find_root(r);
+        l = find_root(l)->rightmost();
 
         l->splay();
         l->right = r;
@@ -77,7 +77,7 @@ namespace dgraph {
         l->recalc();
     }
 
-    Entry* findRoot(Entry* e) {
+    Entry* find_root(Entry* e) {
         while (e->parent != nullptr) e = e->parent;
         return e;
     }
@@ -187,7 +187,7 @@ namespace dgraph {
     }
 
     bool EulerTourForest::is_connected(int v, int u) {
-        return findRoot(first[v]) == findRoot(first[u]);
+        return find_root(first[v]) == find_root(first[u]);
     }
 
     void EulerTourForest::changeEdges(int v, int n) {
@@ -197,7 +197,7 @@ namespace dgraph {
     }
 
     int EulerTourForest::size(int v) {
-        return findRoot(first[v])->size;
+        return find_root(first[v])->size;
     }
 
     Iterator EulerTourForest::iterator(int v){
@@ -208,7 +208,7 @@ namespace dgraph {
         std::string str;
         std::vector<bool> vis(graph.n, false);
         for(int i = 0; i < graph.n; i++){
-            Entry* curr = findRoot(graph.first[i]);
+            Entry* curr = find_root(graph.first[i]);
             if(!vis[curr->vertex()]){
                 vis[curr->vertex()] = true;
                 str += to_string(curr) + "\n";
@@ -222,17 +222,18 @@ namespace dgraph {
         if (e->pred() == nullptr) {
             return;
         }
-        Entry* root = findRoot(e);
+        Entry* root = find_root(e)->leftmost();
 
+        int u = v;
         while (true) {
-            Entry* prev = first[v]->pred();
-            Entry* next = last[v]->succ();
+            Entry* prev = first[u]->pred();
+            Entry* next = last[u]->succ();
             if (prev == nullptr) {
                 break;
             }
             last[prev->v] = prev;
             first[next->v] = next;
-            v = prev->v;
+            u = prev->v;
         }
 
         Entry* right = root->rightmost();
@@ -291,7 +292,7 @@ namespace dgraph {
     }
 
     Iterator Entry::iterator() {
-        Entry* curr = findRoot(this)->leftmost();
+        Entry* curr = find_root(this)->leftmost();
         Iterator iterator(curr);
         if(!curr->good()) {
             ++iterator;
