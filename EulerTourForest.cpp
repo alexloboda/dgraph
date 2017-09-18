@@ -67,6 +67,9 @@ namespace dgraph {
         parent = child;
         recalc();
         child->recalc();
+        if (parent != nullptr){
+            parent->recalc();
+        }
     }
 
     void merge(Entry* l, Entry* r) {
@@ -169,7 +172,6 @@ namespace dgraph {
     }
 
     void EulerTourForest::link(int v, int u) {
-        // TODO: speed up edge changes
         auto cut = split(last[v], false);
         auto* node = new Entry(nullptr, nullptr, nullptr, v);
         if(first[v] == last[v]){
