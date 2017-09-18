@@ -62,6 +62,7 @@ namespace dgraph {
         void changeEdges(int v, int n);
         int size(int v);
         Iterator iterator(int v);
+        void replaceFirst(int, Entry*);
 
         friend std::string to_string(EulerTourForest&);
     };

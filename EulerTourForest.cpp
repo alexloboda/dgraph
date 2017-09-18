@@ -48,8 +48,6 @@ namespace dgraph {
                 left->parent = this;
             }
             child->right = this;
-            child->parent = parent;
-            parent = child;
         } else {
             child = right;
             right = child->left;
@@ -57,9 +55,16 @@ namespace dgraph {
                 right->parent = this;
             }
             child->left = this;
-            child->parent = parent;
-            parent = child;
         }
+        if (parent != nullptr) {
+            if (this == parent->left){
+                parent->left = child;
+            } else {
+                parent->right = child;
+            }
+        }
+        child->parent = parent;
+        parent = child;
         recalc();
         child->recalc();
     }
@@ -156,13 +161,19 @@ namespace dgraph {
         }
     }
 
+    void EulerTourForest::replaceFirst(int v, Entry* e) {
+        int edges = first[v]->edges;
+        changeEdges(v, -edges);
+        first[v] = e;
+        changeEdges(v, edges);
+    }
+
     void EulerTourForest::link(int v, int u) {
+        // TODO: speed up edge changes
         auto cut = split(last[v], false);
         auto* node = new Entry(nullptr, nullptr, nullptr, v);
         if(first[v] == last[v]){
-            first[v] = node;
-            first[v]->edges = last[v]->edges;
-            last[v]->edges = 0;
+            replaceFirst(v, node);
         }
         make_root(u);
         merge(node, first[u]);
@@ -222,23 +233,24 @@ namespace dgraph {
         if (e->pred() == nullptr) {
             return;
         }
-        Entry* root = find_root(e)->leftmost();
+        Entry* splay_root = find_root(e);
+        Entry* root = splay_root->leftmost();
 
         int u = v;
         while (true) {
-            Entry* prev = first[u]->pred();
-            Entry* next = last[u]->succ();
-            if (prev == nullptr) {
+            if (u == root->v){
                 break;
             }
+            Entry* prev = first[u]->pred();
+            Entry* next = last[u]->succ();
             last[prev->v] = prev;
-            first[next->v] = next;
+            replaceFirst(next->v, next);
             u = prev->v;
         }
 
-        Entry* right = root->rightmost();
+        Entry* right = splay_root->rightmost();
         if (first[root->v] == right){
-            first[root->v] = root->leftmost();
+            replaceFirst(root->v, root->leftmost());
         }
         right->remove();
 
