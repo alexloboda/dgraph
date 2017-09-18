@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+
 #include "../EulerTourForest.h"
 
 TEST_CASE("Euler tour forest works fine on simple tests", "[etf]"){
@@ -11,27 +12,28 @@ TEST_CASE("Euler tour forest works fine on simple tests", "[etf]"){
         REQUIRE (forest.is_connected(0, 1));
         REQUIRE (forest.is_connected(2, 3));
         REQUIRE (!forest.is_connected(1, 3));
-    }
 
-    SECTION("linking leaf vertices"){
-        forest.link(1, 3);
-        forest.link(4, 2);
-        REQUIRE(forest.is_connected(0, 1));
-    }
+        SECTION("linking leaf vertices"){
+            forest.link(1, 3);
+            forest.link(4, 2);
+            REQUIRE(forest.is_connected(0, 1));
 
-    SECTION("cutting and linking back"){
-        forest.cut(1);
-        REQUIRE(!forest.is_connected(1, 2));
-        forest.link(4, 1);
-        REQUIRE(forest.is_connected(4, 0));
-    }
+            SECTION("cutting and linking back"){
+                forest.cut(1);
+                REQUIRE(!forest.is_connected(1, 2));
+                forest.link(4, 1);
+                REQUIRE(forest.is_connected(4, 0));
+            }
 
-    SECTION("checking iterator"){
-        auto iterator = forest.iterator(1);
-        std::set<int> vs;
-        while(iterator.hasNext()){
-            vs.insert(*iterator);
+            SECTION("checking iterator"){
+                auto iterator = forest.iterator(1);
+                std::set<int> vs;
+                while(iterator.hasNext()){
+                    vs.insert(*iterator);
+                    ++iterator;
+                }
+                REQUIRE(vs.size() == 5);
+            }
         }
-        REQUIRE(vs.size() == 5);
     }
 }
