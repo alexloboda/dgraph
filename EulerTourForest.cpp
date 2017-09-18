@@ -235,8 +235,7 @@ namespace dgraph {
         if (e->pred() == nullptr) {
             return;
         }
-        Entry* splay_root = find_root(e);
-        Entry* root = splay_root->leftmost();
+        Entry* root = find_root(e)->leftmost();
 
         int u = v;
         while (true) {
@@ -245,12 +244,12 @@ namespace dgraph {
             }
             Entry* prev = first[u]->pred();
             Entry* next = last[u]->succ();
+            u = prev->v;
             last[prev->v] = prev;
             replaceFirst(next->v, next);
-            u = prev->v;
         }
 
-        Entry* right = splay_root->rightmost();
+        Entry* right = find_root(e)->rightmost();
         if (first[root->v] == right){
             replaceFirst(root->v, root->leftmost());
         }
