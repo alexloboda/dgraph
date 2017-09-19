@@ -54,15 +54,16 @@ namespace dgraph {
         std::vector<Entry*> first;
         std::vector<Entry*> last;
         void make_root(int v);
+        void check_order(int v);
+
     public:
         explicit EulerTourForest(int);
         bool is_connected(int v, int u);
         void link(int v, int u);
-        int cut(int v);
+        int cut(int v, int u);
         void changeEdges(int v, int n);
         int size(int v);
         Iterator iterator(int v);
-        void replaceFirst(int, Entry*);
 
         friend std::string to_string(EulerTourForest&);
     };

@@ -1,4 +1,5 @@
 #include "EulerTourForest.h"
+#include <utility>
 
 namespace dgraph {
 
@@ -164,26 +165,16 @@ namespace dgraph {
         }
     }
 
-    void EulerTourForest::replaceFirst(int v, Entry* e) {
-        int edges = first[v]->edges;
-        changeEdges(v, -edges);
-        first[v] = e;
-        changeEdges(v, edges);
-    }
-
     void EulerTourForest::link(int v, int u) {
         auto cut = split(last[v], false);
         auto* node = new Entry(nullptr, nullptr, nullptr, v);
-        if(first[v] == last[v]){
-            replaceFirst(v, node);
-        }
         make_root(u);
         merge(node, first[u]);
         merge(cut.first, node);
         merge(node, cut.second);
     }
 
-    int EulerTourForest::cut(int v) {
+    int EulerTourForest::cut(int v, int u) {
         Entry* prev = first[v]->pred();
         if(prev != first[prev->v]){
             prev->remove();
@@ -213,6 +204,10 @@ namespace dgraph {
         return find_root(first[v])->size;
     }
 
+    void EulerTourForest::check_order(int v) {
+
+    }
+
     Iterator EulerTourForest::iterator(int v){
         return first[v]->iterator();
     }
@@ -232,28 +227,15 @@ namespace dgraph {
 
     void EulerTourForest::make_root(int v) {
         Entry* e = first[v];
-        if (e->pred() == nullptr) {
-            return;
-        }
-        Entry* root = find_root(e)->leftmost();
-
-        int u = v;
-        while (true) {
-            if (u == root->v){
-                break;
-            }
-            Entry* prev = first[u]->pred();
-            Entry* next = last[u]->succ();
-            u = prev->v;
-            last[prev->v] = prev;
-            replaceFirst(next->v, next);
-        }
 
         Entry* right = find_root(e)->rightmost();
-        if (first[root->v] == right){
-            replaceFirst(root->v, root->leftmost());
+        int root = right->v;
+        if (root == v) {
+            return;
         }
-        right->remove();
+        int latest = last[root]->pred()->v;
+        last[root]->remove();
+        last[root] = first[latest]->pred();
 
         auto cut = split(e, false);
         auto new_node = new Entry(nullptr, nullptr, nullptr, v);
