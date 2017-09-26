@@ -51,15 +51,13 @@ namespace dgraph {
 
     class EulerTourForest {
         int n;
-        std::vector<Entry*> first;
-        std::vector<Entry*> last;
-        std::vector<int> parent;
+        std::vector<Entry*> any;
         Entry* make_root(int v);
 
     public:
         explicit EulerTourForest(int);
         bool is_connected(int v, int u);
-        void link(int v, int u);
+        std::pair<Entry*, Entry*> link(int v, int u);
         int cut(int v, int u);
         void changeEdges(int v, int n);
         int size(int v);

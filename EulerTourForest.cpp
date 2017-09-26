@@ -160,29 +160,25 @@ namespace dgraph {
     EulerTourForest::EulerTourForest(int _n) : n(_n) {
         for (int i = 0; i < n; i++) {
             auto* vertex = new Entry(i);
-            first.push_back(vertex);
+            any.push_back(vertex);
         }
     }
 
-    void EulerTourForest::make_root(int v) {
+    Entry* EulerTourForest::make_root(int v) {
 
     }
 
 
-    void EulerTourForest::link(int v, int u) {
+    std::pair<Entry*, Entry*> EulerTourForest::link(int v, int u) {
         Entry* root = make_root(v);
         make_root(u);
-        parent[u] = v;
         auto* l = new Entry(v);
         auto* r = new Entry(u);
         merge(l, r);
         merge(root, l);
     }
 
-    int EulerTourForest::cut(int v, int u) {
-        if (parent[u] != v){
-            std::swap(v, u);
-        }
+    int EulerTourForest::cut(Entry* first, Entry* last) {
 
     }
 
