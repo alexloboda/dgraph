@@ -91,7 +91,7 @@ namespace dgraph {
         return e;
     }
 
-    Entry::Entry(Entry* l, Entry* r, Entry* p, int v) : left(l), right(r), parent(p), v(v), size(1) {}
+    Entry::Entry(int v, Entry* l, Entry* r, Entry* p) : left(l), right(r), parent(p), v(v), size(1) {}
 
     Entry* Entry::succ() {
         Entry* curr = this;
@@ -159,35 +159,31 @@ namespace dgraph {
 
     EulerTourForest::EulerTourForest(int _n) : n(_n) {
         for (int i = 0; i < n; i++) {
-            auto* vertex = new Entry(nullptr, nullptr, nullptr, i);
+            auto* vertex = new Entry(i);
             first.push_back(vertex);
-            last.push_back(vertex);
         }
     }
 
+    void EulerTourForest::make_root(int v) {
+
+    }
+
+
     void EulerTourForest::link(int v, int u) {
-        auto cut = split(last[v], false);
-        auto* node = new Entry(nullptr, nullptr, nullptr, v);
+        Entry* root = make_root(v);
         make_root(u);
-        merge(node, first[u]);
-        merge(cut.first, node);
-        merge(node, cut.second);
+        parent[u] = v;
+        auto* l = new Entry(v);
+        auto* r = new Entry(u);
+        merge(l, r);
+        merge(root, l);
     }
 
     int EulerTourForest::cut(int v, int u) {
-        Entry* prev = first[v]->pred();
-        if(prev != first[prev->v]){
-            prev->remove();
-        } else {
-            Entry* next = last[v]->succ();
-            if(next == last[next->v]){
-                last[next->v] = prev;
-            }
-            next->remove();
+        if (parent[u] != v){
+            std::swap(v, u);
         }
-        auto left_cut = split(first[v], false);
-        auto right_cut = split(last[v], true);
-        merge(left_cut.first, right_cut.second);
+
     }
 
     bool EulerTourForest::is_connected(int v, int u) {
@@ -202,10 +198,6 @@ namespace dgraph {
 
     int EulerTourForest::size(int v) {
         return find_root(first[v])->size;
-    }
-
-    void EulerTourForest::check_order(int v) {
-
     }
 
     Iterator EulerTourForest::iterator(int v){
@@ -223,25 +215,6 @@ namespace dgraph {
             }
         }
         return str;
-    }
-
-    void EulerTourForest::make_root(int v) {
-        Entry* e = first[v];
-
-        Entry* right = find_root(e)->rightmost();
-        int root = right->v;
-        if (root == v) {
-            return;
-        }
-        int latest = last[root]->pred()->v;
-        last[root]->remove();
-        last[root] = first[latest]->pred();
-
-        auto cut = split(e, false);
-        auto new_node = new Entry(nullptr, nullptr, nullptr, v);
-        last[v] = new_node;
-        merge(cut.first, new_node);
-        merge(cut.second, cut.first);
     }
 
     Iterator::Iterator(Entry* entry) :entry(entry){}

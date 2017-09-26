@@ -15,7 +15,7 @@ namespace dgraph {
         int size;
         int edges;
 
-        Entry(Entry*, Entry*, Entry*, int);
+        Entry(int, Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
         void splay();
         void rotate(bool);
         void remove();
@@ -53,8 +53,8 @@ namespace dgraph {
         int n;
         std::vector<Entry*> first;
         std::vector<Entry*> last;
-        void make_root(int v);
-        void check_order(int v);
+        std::vector<int> parent;
+        Entry* make_root(int v);
 
     public:
         explicit EulerTourForest(int);
