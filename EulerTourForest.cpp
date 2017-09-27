@@ -262,6 +262,7 @@ namespace dgraph {
                 entry = entry->parent;
                 continue;
             } else {
+                entry = entry->parent;
                 break;
             }
         }
