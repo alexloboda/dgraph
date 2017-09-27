@@ -15,7 +15,7 @@ namespace dgraph {
         unsigned size;
         unsigned edges;
 
-        explicit Entry(int, Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
+        explicit Entry(unsigned , Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
         void splay();
         void rotate(bool);
         Entry* remove();
