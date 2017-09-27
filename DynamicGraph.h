@@ -11,15 +11,22 @@ namespace dgraph {
 
     class Edge{
         unsigned lvl;
+        int v;
+        int u;
         std::vector<List*> links;
-    public:
-        unsigned level();
-        int where();
-        explicit Edge(unsigned);
-        ~Edge();
-        void levelDown();
+        std::vector<std::pair<Entry*, Entry*>> half_edges;
         void subscribe(List*);
         void removeLinks();
+        void add_tree_edge(std::pair<Entry*, Entry*>);
+    public:
+        unsigned level();
+        explicit Edge(unsigned, int, int);
+        ~Edge();
+        int from();
+        int to();
+        bool is_tree_edge();
+
+        friend class DynamicGraph;
     };
 
     class DynamicGraph {
@@ -27,7 +34,6 @@ namespace dgraph {
         int size;
         vector<EulerTourForest> forests;
         vector<vector<List*>> adjLists;
-        vector<int> parent;
         void downgrade(int v, int w, Edge* e);
     public:
         explicit DynamicGraph(int n);

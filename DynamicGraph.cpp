@@ -5,7 +5,7 @@
 
 namespace dgraph {
 
-    DynamicGraph::DynamicGraph(int n) : n(n), parent(vector<int>(n, -1)) {
+    DynamicGraph::DynamicGraph(int n) : n(n) {
         size = std::lround(std::ceil(std::log2(n)) + 1);
         for (int i = 0; i < size; i++) {
             forests.emplace_back(n);
@@ -17,11 +17,10 @@ namespace dgraph {
     }
 
     Edge* DynamicGraph::add(int v, int u) {
-        auto n = forests.size() - 1;
-        auto* edge = new Edge(n);
+        auto n = size - 1;
+        auto* edge = new Edge(n, v, u);
         if (!is_connected(v, u)) {
-            forests[n].link(v, u);
-            parent[u] = v;
+            edge->add_tree_edge(forests[n].link(v, u));
         }
         forests[n].changeEdges(v, 1);
         forests[n].changeEdges(u, 1);
@@ -31,15 +30,21 @@ namespace dgraph {
     }
 
     void DynamicGraph::remove(Edge* link) {
-        int u = link->where();
+        int v = link->from();
+        int u = link->to();
+        bool complex_deletion = link->is_tree_edge();
         int level = link->level();
-        delete link;
-        int v = parent[u];
-        if (v != -1){
-            parent[u] = -1;
-            for (int i = level; i < size; i++){
-                forests[i].cut(u);
+
+        if (complex_deletion) {
+            for (int i = 0; i <= size - level; i++){
+                auto pts = link->half_edges[i];
+                forests[size - i - 1].cut(pts.first, pts.second);
             }
+        }
+
+        delete link;
+
+        if (complex_deletion) {
             for (int i = level; i < size; i++){
                 // find new connection
                 // to do that choose less component
@@ -55,8 +60,7 @@ namespace dgraph {
                         int up = (*lit)->vertex();
                         if(is_connected(up, u)){
                             for (int j = i; j < size; j++){
-                                forests[j].link(w, up);
-                                parent[up] = w;
+                                (*lit)->e()->add_tree_edge(forests[j].link(w, up));
                             }
                             return;
                         } else {
@@ -70,8 +74,7 @@ namespace dgraph {
     }
 
     void DynamicGraph::downgrade(int v, int w, Edge* e){
-        int lvl = e->level();
-        e->levelDown();
+        int lvl = e->lvl--;
         e->removeLinks();
         e->subscribe(adjLists[lvl - 1][w]->add(v, e));
         e->subscribe(adjLists[lvl - 1][v]->add(w, e));
@@ -79,11 +82,8 @@ namespace dgraph {
         forests[lvl].changeEdges(v, -1);
         forests[lvl - 1].changeEdges(w, 1);
         forests[lvl - 1].changeEdges(v, 1);
-        if (parent[v] == w) {
+        if (e->is_tree_edge()) {
             forests[lvl - 1].link(v, w);
-        }
-        if (parent[w] == v) {
-            forests[lvl - 1].link(w, v);
         }
     }
 
@@ -132,7 +132,7 @@ namespace dgraph {
         return edge;
     }
 
-    Edge::Edge(unsigned lvl) : lvl(lvl) {}
+    Edge::Edge(unsigned lvl, int v, int u) : lvl(lvl) {}
 
     void Edge::subscribe(List* link) {
         links.push_back(link);
@@ -144,16 +144,8 @@ namespace dgraph {
         }
     }
 
-    int Edge::where() {
-        return links[0]->u;
-    }
-
     unsigned Edge::level() {
         return lvl;
-    }
-
-    void Edge::levelDown() {
-        lvl--;
     }
 
     void Edge::removeLinks() {
@@ -161,6 +153,22 @@ namespace dgraph {
             delete l;
         }
         links.clear();
+    }
+
+    int Edge::from() {
+        return v;
+    }
+
+    int Edge::to() {
+        return u;
+    }
+
+    void Edge::add_tree_edge(std::pair<Entry*, Entry*> edge) {
+        half_edges.push_back(edge);
+    }
+
+    bool Edge::is_tree_edge() {
+        return !half_edges.empty();
     }
 
     ListIterator::ListIterator(List* list) :list(list) {}
