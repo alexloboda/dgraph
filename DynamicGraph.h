@@ -9,52 +9,54 @@ namespace dgraph {
     class List;
     class ListIterator;
 
-    class Edge{
+    class Edge {
         unsigned lvl;
-        int v;
-        int u;
+        unsigned v;
+        unsigned u;
         std::vector<List*> links;
-        std::vector<std::pair<Entry*, Entry*>> half_edges;
+        std::vector<TreeEdge> tree_edges;
         void subscribe(List*);
         void removeLinks();
-        void add_tree_edge(std::pair<Entry*, Entry*>);
+        void add_tree_edge(TreeEdge&&);
     public:
-        unsigned level();
-        explicit Edge(unsigned, int, int);
+        explicit Edge(unsigned, unsigned , unsigned);
         ~Edge();
-        int from();
-        int to();
+
+        unsigned from();
+        unsigned to();
+        unsigned level();
         bool is_tree_edge();
 
         friend class DynamicGraph;
     };
 
     class DynamicGraph {
-        int n;
-        int size;
+        unsigned n;
+        unsigned size;
         vector<EulerTourForest> forests;
         vector<vector<List*>> adjLists;
-        void downgrade(int v, int w, Edge* e);
+        void downgrade(Edge* e);
     public:
-        explicit DynamicGraph(int n);
-        Edge* add(int v, int u);
+        explicit DynamicGraph(unsigned n);
+        Edge* add(unsigned v, unsigned u);
         void remove(Edge*);
-        bool is_connected(int v, int u);
+        bool is_connected(unsigned v, unsigned u);
 
         friend std::string to_string(DynamicGraph&);
     };
 
     class List {
         Edge* edge;
-        int u;
+        unsigned u;
         List* next;
         List* prev;
-        List(int, Edge*, List*, List*);
+        List(unsigned, Edge*, List*, List*);
     public:
         List();
-        List* add(int, Edge*);
+
+        List* add(unsigned , Edge*);
         ListIterator iterator();
-        int vertex();
+        unsigned vertex();
         Edge* e();
         ~List();
 
