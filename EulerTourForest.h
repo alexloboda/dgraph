@@ -6,6 +6,7 @@
 
 namespace dgraph {
     class Iterator;
+    class EulerTourForest;
 
     class Entry {
         Entry* left;
@@ -16,6 +17,7 @@ namespace dgraph {
         unsigned edges;
 
         explicit Entry(unsigned , Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
+
         void splay();
         void rotate(bool);
         Entry* remove();
@@ -48,6 +50,18 @@ namespace dgraph {
         bool hasNext();
     };
 
+    class TreeEdge {
+        Entry* edge;
+        Entry* twin;
+        EulerTourForest& forest;
+        TreeEdge(Entry*, Entry*, EulerTourForest& forest);
+    public:
+        TreeEdge(TreeEdge&&) noexcept;
+        ~TreeEdge() = default;
+
+        friend class EulerTourForest;
+    };
+
     class EulerTourForest {
         int n;
         std::vector<Entry*> any;
@@ -55,12 +69,13 @@ namespace dgraph {
         Entry* expand(unsigned v);
         void change_any(Entry* e);
         Entry* cutoff(Entry* e);
+        void cut(Entry*, Entry*);
 
     public:
         explicit EulerTourForest(unsigned);
         bool is_connected(unsigned v, unsigned u);
-        std::pair<Entry*, Entry*> link(unsigned v, unsigned u);
-        void cut(Entry*, Entry*);
+        TreeEdge link(unsigned v, unsigned u);
+        void cut(TreeEdge&&);
         void changeEdges(unsigned v, int n);
         unsigned size(unsigned v);
         Iterator iterator(unsigned v);

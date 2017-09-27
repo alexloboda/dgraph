@@ -171,11 +171,11 @@ namespace dgraph {
         return new_node;
     }
 
-    std::pair<Entry*, Entry*> EulerTourForest::link(unsigned v, unsigned u) {
+    TreeEdge EulerTourForest::link(unsigned v, unsigned u) {
         Entry* l = expand(v);
         Entry* r = expand(u);
         merge(l, r);
-        return std::make_pair(l, r);
+        return TreeEdge(l, r, *this);
     }
 
     void EulerTourForest::cut(Entry* first, Entry* last) {
@@ -233,6 +233,10 @@ namespace dgraph {
             }
         }
         return str;
+    }
+
+    void EulerTourForest::cut(TreeEdge&& edge) {
+        cut(edge.edge, edge.twin);
     }
 
     Iterator::Iterator(Entry* entry) :entry(entry){}
@@ -324,4 +328,10 @@ namespace dgraph {
         return curr;
     }
 
+    TreeEdge::TreeEdge(Entry* e, Entry* t, EulerTourForest& forest) :edge(e), twin(t), forest(forest){}
+
+    TreeEdge::TreeEdge(TreeEdge&& edge) noexcept :forest(edge.forest), edge(edge.edge), twin(edge.twin){
+        edge.twin = nullptr;
+        edge.edge = nullptr;
+    }
 }
