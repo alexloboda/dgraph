@@ -11,11 +11,11 @@ namespace dgraph {
         Entry* left;
         Entry* right;
         Entry* parent;
-        int v;
-        int size;
-        int edges;
+        unsigned v;
+        unsigned size;
+        unsigned edges;
 
-        Entry(int, Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
+        explicit Entry(int, Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
         void splay();
         void rotate(bool);
         Entry* remove();
@@ -34,7 +34,7 @@ namespace dgraph {
         friend class Iterator;
 
     public:
-        int vertex();
+        unsigned vertex();
 
         friend std::string to_string(Entry*);
     };
@@ -44,26 +44,26 @@ namespace dgraph {
     public:
         explicit Iterator(Entry*);
         Iterator& operator++();
-        int operator*();
+        unsigned operator*();
         bool hasNext();
     };
 
     class EulerTourForest {
         int n;
         std::vector<Entry*> any;
-        Entry* make_root(int v);
-        Entry* expand(int v);
+        Entry* make_root(unsigned v);
+        Entry* expand(unsigned v);
         void change_any(Entry* e);
         Entry* cutoff(Entry* e);
 
     public:
-        explicit EulerTourForest(int);
-        bool is_connected(int v, int u);
-        std::pair<Entry*, Entry*> link(int v, int u);
+        explicit EulerTourForest(unsigned);
+        bool is_connected(unsigned v, unsigned u);
+        std::pair<Entry*, Entry*> link(unsigned v, unsigned u);
         void cut(Entry*, Entry*);
-        void changeEdges(int v, int n);
-        int size(int v);
-        Iterator iterator(int v);
+        void changeEdges(unsigned v, int n);
+        unsigned size(unsigned v);
+        Iterator iterator(unsigned v);
 
         friend std::string to_string(EulerTourForest&);
     };

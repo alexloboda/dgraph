@@ -1,8 +1,6 @@
 #include "EulerTourForest.h"
 #include <utility>
 
-#include <iostream>
-
 namespace dgraph {
 
     void Entry::splay() {
@@ -98,7 +96,7 @@ namespace dgraph {
         return e;
     }
 
-    Entry::Entry(int v, Entry* l, Entry* r, Entry* p) : left(l), right(r), parent(p), v(v), size(1), edges(0) {}
+    Entry::Entry(unsigned v, Entry* l, Entry* r, Entry* p) : left(l), right(r), parent(p), v(v), size(1), edges(0) {}
 
     Entry* Entry::succ() {
         Entry* curr = this;
@@ -150,20 +148,20 @@ namespace dgraph {
         }
     }
 
-    EulerTourForest::EulerTourForest(int _n) : n(_n) {
-        for (int i = 0; i < n; i++) {
+    EulerTourForest::EulerTourForest(unsigned n) : n(n) {
+        for (unsigned i = 0; i < n; i++) {
             auto* vertex = new Entry(i);
             any.push_back(vertex);
         }
     }
 
-    Entry* EulerTourForest::make_root(int v) {
+    Entry* EulerTourForest::make_root(unsigned v) {
         Entry* e = any[v];
         auto cut = split(e, false);
         return merge(cut.second, cut.first);
     }
 
-    Entry* EulerTourForest::expand(int v) {
+    Entry* EulerTourForest::expand(unsigned v) {
         Entry* e = make_root(v);
         if (e->size == 1){
             return e;
@@ -173,7 +171,7 @@ namespace dgraph {
         return new_node;
     }
 
-    std::pair<Entry*, Entry*> EulerTourForest::link(int v, int u) {
+    std::pair<Entry*, Entry*> EulerTourForest::link(unsigned v, unsigned u) {
         Entry* l = expand(v);
         Entry* r = expand(u);
         merge(l, r);
@@ -199,35 +197,35 @@ namespace dgraph {
     }
 
     void EulerTourForest::change_any(Entry* e) {
-        int edges = e->edges;
-        int v = e->v;
+        unsigned edges = e->edges;
+        unsigned v = e->v;
         changeEdges(v, -edges);
         any[v] = e;
         changeEdges(v, edges);
     }
 
-    bool EulerTourForest::is_connected(int v, int u) {
+    bool EulerTourForest::is_connected(unsigned v, unsigned u) {
         return find_root(any[v]) == find_root(any[u]);
     }
 
-    void EulerTourForest::changeEdges(int v, int n) {
+    void EulerTourForest::changeEdges(unsigned v, int n) {
         any[v]->splay();
         any[v]->edges += n;
         any[v]->recalc();
     }
 
-    int EulerTourForest::size(int v) {
+    unsigned EulerTourForest::size(unsigned v) {
         return find_root(any[v])->size;
     }
 
-    Iterator EulerTourForest::iterator(int v){
+    Iterator EulerTourForest::iterator(unsigned v){
         return any[v]->iterator();
     }
 
     std::string to_string(EulerTourForest& graph) {
         std::string str;
         std::vector<bool> vis(graph.n, false);
-        for(int i = 0; i < graph.n; i++){
+        for(unsigned i = 0; i < graph.n; i++){
             Entry* curr = find_root(graph.any[i]);
             if(!vis[curr->vertex()]){
                 vis[curr->vertex()] = true;
@@ -272,7 +270,7 @@ namespace dgraph {
         return ++(*this);
     }
 
-    int Iterator::operator*() {
+    unsigned Iterator::operator*() {
         return entry->v;
     }
 
@@ -289,7 +287,7 @@ namespace dgraph {
         return iterator;
     }
 
-    int Entry::vertex() {
+    unsigned Entry::vertex() {
         return v;
     }
 
@@ -304,7 +302,7 @@ namespace dgraph {
     }
 
     bool Entry::good() {
-        int sum = 0;
+        unsigned sum = 0;
         if (left != nullptr){
             sum += left->edges;
         }
