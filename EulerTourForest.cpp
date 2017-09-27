@@ -155,6 +155,8 @@ namespace dgraph {
         }
     }
 
+    EulerTourForest::EulerTourForest(EulerTourForest&& forest) :n(forest.n), any(std::move(forest.any)) {}
+
     EulerTourForest::~EulerTourForest() {
         std::vector<bool> vis(n, false);
         std::list<Entry*> entries;
@@ -258,7 +260,9 @@ namespace dgraph {
     }
 
     void EulerTourForest::cut(TreeEdge&& edge) {
-        cut(edge.edge, edge.twin);
+        if (edge.edge != nullptr) {
+            cut(edge.edge, edge.twin);
+        }
     }
 
     Iterator::Iterator(Entry* entry) :entry(entry){}

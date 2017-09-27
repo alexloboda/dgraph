@@ -74,6 +74,7 @@ namespace dgraph {
         explicit EulerTourForest(unsigned);
         EulerTourForest(const EulerTourForest&) = delete;
         EulerTourForest& operator=(const EulerTourForest&) = delete;
+        EulerTourForest(EulerTourForest&&);
         ~EulerTourForest();
 
         bool is_connected(unsigned v, unsigned u);

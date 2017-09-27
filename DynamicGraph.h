@@ -8,6 +8,7 @@ namespace dgraph {
 
     class List;
     class ListIterator;
+    class DynamicGraph;
 
     class Edge {
         unsigned lvl;
@@ -30,6 +31,18 @@ namespace dgraph {
         friend class DynamicGraph;
     };
 
+    class EdgeToken {
+        Edge* edge;
+        explicit EdgeToken(Edge*);
+    public:
+        EdgeToken(const EdgeToken&) = delete;
+        EdgeToken& operator=(const EdgeToken&) = delete;
+        EdgeToken(EdgeToken&&) noexcept;
+        ~EdgeToken() = default;
+
+        friend class DynamicGraph;
+    };
+
     class DynamicGraph {
         unsigned n;
         unsigned size;
@@ -38,8 +51,12 @@ namespace dgraph {
         void downgrade(Edge* e);
     public:
         explicit DynamicGraph(unsigned n);
-        Edge* add(unsigned v, unsigned u);
-        void remove(Edge*);
+        DynamicGraph(const DynamicGraph&) = delete;
+        DynamicGraph&operator=(const DynamicGraph&) = delete;
+        ~DynamicGraph();
+
+        EdgeToken add(unsigned v, unsigned u);
+        void remove(EdgeToken&&);
         bool is_connected(unsigned v, unsigned u);
 
         friend std::string to_string(DynamicGraph&);

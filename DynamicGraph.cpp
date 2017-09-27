@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <utility>
+#include <limits>
 
 namespace dgraph {
 
@@ -16,7 +17,21 @@ namespace dgraph {
         }
     }
 
-    Edge* DynamicGraph::add(unsigned v, unsigned u) {
+    DynamicGraph::~DynamicGraph() {
+        for (unsigned i = 0; i < size; i++) {
+            for (unsigned j = 0; j < n; j++){
+                ListIterator it = adjLists[i][j]->iterator();
+                while (it.hasNext()){
+                    List* list = *it;
+                    it++;
+                    delete list;
+                }
+                delete *it;
+            }
+        }
+    }
+
+    EdgeToken DynamicGraph::add(unsigned v, unsigned u) {
         unsigned n = size - 1;
         auto* edge = new Edge(n, v, u);
         if (!is_connected(v, u)) {
@@ -26,10 +41,11 @@ namespace dgraph {
         forests[n].changeEdges(u, 1);
         edge->subscribe(adjLists[n][v]->add(u, edge));
         edge->subscribe(adjLists[n][u]->add(v, edge));
-        return edge;
+        return EdgeToken(edge);
     }
 
-    void DynamicGraph::remove(Edge* link) {
+    void DynamicGraph::remove(EdgeToken&& edge_token) {
+        Edge* link = edge_token.edge;
         unsigned v = link->from();
         unsigned u = link->to();
         bool complex_deletion = link->is_tree_edge();
@@ -118,7 +134,7 @@ namespace dgraph {
     List::List() {
         next = this;
         prev = this;
-        u = -1;
+        u = std::numeric_limits<unsigned>::max();
     }
 
     ListIterator List::iterator() {
@@ -186,5 +202,11 @@ namespace dgraph {
 
     bool ListIterator::hasNext() {
         return list->edge != nullptr;
+    }
+
+    EdgeToken::EdgeToken(Edge* edge) :edge(edge){}
+
+    EdgeToken::EdgeToken(EdgeToken&& e) noexcept :edge(e.edge){
+        e.edge = nullptr;
     }
 }
