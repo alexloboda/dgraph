@@ -1,5 +1,6 @@
 #include "EulerTourForest.h"
 #include <utility>
+#include <list>
 
 namespace dgraph {
 
@@ -37,7 +38,6 @@ namespace dgraph {
             return left;
         }
         merge(left, right);
-        delete this;
         return left;
     }
 
@@ -155,6 +155,26 @@ namespace dgraph {
         }
     }
 
+    EulerTourForest::~EulerTourForest() {
+        std::vector<bool> vis(n, false);
+        std::list<Entry*> entries;
+        for (unsigned i = 0; i < n; i++) {
+            if (vis[i]) {
+                continue;
+            }
+            vis[i] = true;
+            Entry* e = find_root(any[i])->leftmost();
+            while (e != nullptr){
+                vis[e->v] = true;
+                entries.push_back(e);
+                e = e->succ();
+            }
+        }
+        for (Entry* e : entries) {
+            delete e;
+        }
+    }
+
     Entry* EulerTourForest::make_root(unsigned v) {
         Entry* e = any[v];
         auto cut = split(e, false);
@@ -175,7 +195,7 @@ namespace dgraph {
         Entry* l = expand(v);
         Entry* r = expand(u);
         merge(l, r);
-        return TreeEdge(l, r, *this);
+        return {l, r};
     }
 
     void EulerTourForest::cut(Entry* first, Entry* last) {
@@ -193,7 +213,9 @@ namespace dgraph {
         if (any[e->v] == e){
             change_any(find_root(e)->leftmost());
         }
-        return e->remove();
+        Entry* result = e->remove();
+        delete e;
+        return result;
     }
 
     void EulerTourForest::change_any(Entry* e) {
@@ -328,9 +350,9 @@ namespace dgraph {
         return curr;
     }
 
-    TreeEdge::TreeEdge(Entry* e, Entry* t, EulerTourForest& forest) :edge(e), twin(t), forest(forest){}
+    TreeEdge::TreeEdge(Entry* e, Entry* t) :edge(e), twin(t) {}
 
-    TreeEdge::TreeEdge(TreeEdge&& edge) noexcept :forest(edge.forest), edge(edge.edge), twin(edge.twin){
+    TreeEdge::TreeEdge(TreeEdge&& edge) noexcept :edge(edge.edge), twin(edge.twin){
         edge.twin = nullptr;
         edge.edge = nullptr;
     }

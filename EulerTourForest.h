@@ -53,8 +53,7 @@ namespace dgraph {
     class TreeEdge {
         Entry* edge;
         Entry* twin;
-        EulerTourForest& forest;
-        TreeEdge(Entry*, Entry*, EulerTourForest& forest);
+        TreeEdge(Entry*, Entry*);
     public:
         TreeEdge(TreeEdge&&) noexcept;
         ~TreeEdge() = default;
@@ -75,6 +74,7 @@ namespace dgraph {
         explicit EulerTourForest(unsigned);
         EulerTourForest(const EulerTourForest&) = delete;
         EulerTourForest& operator=(const EulerTourForest&) = delete;
+        ~EulerTourForest();
 
         bool is_connected(unsigned v, unsigned u);
         TreeEdge link(unsigned v, unsigned u);

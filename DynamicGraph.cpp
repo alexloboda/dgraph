@@ -63,7 +63,7 @@ namespace dgraph {
                             }
                             return;
                         } else {
-                            downgrade(w, up, (*(lit++))->e());
+                            downgrade((*(lit++))->e());
                         }
                     }
                     ++it;
@@ -73,6 +73,8 @@ namespace dgraph {
     }
 
     void DynamicGraph::downgrade(Edge* e){
+        unsigned v = e->from();
+        unsigned w = e->to();
         unsigned lvl = e->lvl--;
         e->removeLinks();
         e->subscribe(adjLists[lvl - 1][w]->add(v, e));
