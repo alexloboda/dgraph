@@ -155,7 +155,9 @@ namespace dgraph {
         }
     }
 
-    EulerTourForest::EulerTourForest(EulerTourForest&& forest) :n(forest.n), any(std::move(forest.any)) {}
+    EulerTourForest::EulerTourForest(EulerTourForest&& forest) noexcept :n(forest.n), any(std::move(forest.any)) {
+        forest.n = 0;
+    }
 
     EulerTourForest::~EulerTourForest() {
         std::vector<bool> vis(n, false);
