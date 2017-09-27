@@ -3,6 +3,7 @@
 #include <cmath>
 #include <utility>
 #include <limits>
+#include <iostream>
 
 namespace dgraph {
 
@@ -52,7 +53,7 @@ namespace dgraph {
         unsigned level = link->level();
 
         if (complex_deletion) {
-            for (unsigned i = 0; i <= size - level; i++){
+            for (unsigned i = 0; i <= size - level - 1; i++){
                 forests[size - i - 1].cut(std::move(link->tree_edges[i]));
             }
         }
@@ -149,7 +150,7 @@ namespace dgraph {
         return edge;
     }
 
-    Edge::Edge(unsigned lvl, unsigned v, unsigned u) : lvl(lvl) {}
+    Edge::Edge(unsigned lvl, unsigned v, unsigned u) : lvl(lvl), v(v), u(u) {}
 
     void Edge::subscribe(List* link) {
         links.push_back(link);
