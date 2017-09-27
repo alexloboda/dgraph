@@ -18,16 +18,15 @@ namespace dgraph {
         Entry(int, Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
         void splay();
         void rotate(bool);
-        void remove();
+        Entry* remove();
         Entry* succ();
-        Entry* pred();
         Entry* leftmost();
         Entry* rightmost();
         void recalc();
         bool good();
         Iterator iterator();
 
-        friend void merge(Entry*, Entry*);
+        friend Entry* merge(Entry*, Entry*);
         friend std::pair<Entry*, Entry*> split(Entry*, bool);
         friend Entry* find_root(Entry* e);
 
@@ -55,7 +54,7 @@ namespace dgraph {
         Entry* make_root(int v);
         Entry* expand(int v);
         void change_any(Entry* e);
-        void cutoff(Entry* e);
+        Entry* cutoff(Entry* e);
 
     public:
         explicit EulerTourForest(int);

@@ -1,6 +1,8 @@
 #include "EulerTourForest.h"
 #include <utility>
 
+#include <iostream>
+
 namespace dgraph {
 
     void Entry::splay() {
@@ -22,7 +24,7 @@ namespace dgraph {
         }
     }
 
-    void Entry::remove() {
+    Entry* Entry::remove() {
         splay();
         if (left != nullptr) {
             left->parent = nullptr;
@@ -31,13 +33,14 @@ namespace dgraph {
             right->parent = nullptr;
         }
         if (left == nullptr){
-            return;
+            return right;
         }
         if (right == nullptr){
-            return;
+            return left;
         }
         merge(left, right);
         delete this;
+        return left;
     }
 
     void Entry::rotate(bool left_rotate){
@@ -73,9 +76,12 @@ namespace dgraph {
         }
     }
 
-    void merge(Entry* l, Entry* r) {
-        if (l == nullptr || r == nullptr){
-            return;
+    Entry* merge(Entry* l, Entry* r) {
+        if (l == nullptr) {
+            return r;
+        }
+        if (r == nullptr) {
+            return l;
         }
         r = find_root(r);
         l = find_root(l)->rightmost();
@@ -84,6 +90,7 @@ namespace dgraph {
         l->right = r;
         r->parent = l;
         l->recalc();
+        return l;
     }
 
     Entry* find_root(Entry* e) {
@@ -91,7 +98,7 @@ namespace dgraph {
         return e;
     }
 
-    Entry::Entry(int v, Entry* l, Entry* r, Entry* p) : left(l), right(r), parent(p), v(v), size(1) {}
+    Entry::Entry(int v, Entry* l, Entry* r, Entry* p) : left(l), right(r), parent(p), v(v), size(1), edges(0) {}
 
     Entry* Entry::succ() {
         Entry* curr = this;
@@ -104,20 +111,6 @@ namespace dgraph {
         }
         curr = right;
         curr = curr->leftmost();
-        return curr;
-    }
-
-    Entry* Entry::pred() {
-        Entry* curr = this;
-        if(left == nullptr){
-            while (curr->parent != nullptr && curr == curr->parent->left) curr = curr->parent;
-            if (curr->parent == nullptr){
-                return nullptr;
-            }
-            return curr->parent;
-        }
-        curr = left;
-        curr = curr->rightmost();
         return curr;
     }
 
@@ -167,7 +160,7 @@ namespace dgraph {
     Entry* EulerTourForest::make_root(int v) {
         Entry* e = any[v];
         auto cut = split(e, false);
-        merge(cut.second, cut.first);
+        return merge(cut.second, cut.first);
     }
 
     Entry* EulerTourForest::expand(int v) {
@@ -183,6 +176,7 @@ namespace dgraph {
     std::pair<Entry*, Entry*> EulerTourForest::link(int v, int u) {
         Entry* l = expand(v);
         Entry* r = expand(u);
+        merge(l, r);
         return std::make_pair(l, r);
     }
 
@@ -193,16 +187,15 @@ namespace dgraph {
         if (!right_ordered) {
             std::swap(first_cut, second_cut);
         }
-        cutoff(first_cut.first->rightmost());
+        merge(cutoff(first_cut.first->rightmost()), second_cut.second);
         cutoff(second_cut.first->rightmost());
-        merge(first_cut.first, second_cut.second);
     }
 
-    void EulerTourForest::cutoff(Entry* e) {
+    Entry* EulerTourForest::cutoff(Entry* e) {
         if (any[e->v] == e){
             change_any(find_root(e)->leftmost());
         }
-        e->remove();
+        return e->remove();
     }
 
     void EulerTourForest::change_any(Entry* e) {
