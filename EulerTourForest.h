@@ -68,7 +68,7 @@ namespace dgraph {
         Entry* make_root(unsigned v);
         Entry* expand(unsigned v);
         void change_any(Entry* e);
-        void cutoff(Entry* e);
+        void cutoff(Entry* e, Entry* replacement = nullptr);
         void cut(Entry*, Entry*);
 
     public:

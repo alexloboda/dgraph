@@ -213,17 +213,26 @@ namespace dgraph {
             }
         } else {
             merge(to_remove, second_cut.second);
-            cutoff(to_remove);
+            Entry* next = to_remove->succ();
+            if (next == nullptr) {
+                cutoff(to_remove);
+            } else {
+                cutoff(to_remove, next);
+            }
         }
         cutoff(second_cut.first->rightmost());
     }
 
-    void EulerTourForest::cutoff(Entry* e) {
+    void EulerTourForest::cutoff(Entry* e, Entry* replacement) {
         if (e->is_singleton()) {
             return;
         }
         if (any[e->v] == e){
-            change_any(find_root(e)->leftmost());
+            if (replacement == nullptr) {
+                change_any(find_root(e)->leftmost());
+            } else {
+                change_any(replacement);
+            }
         }
         e->remove();
         delete e;

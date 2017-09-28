@@ -107,7 +107,7 @@ namespace dgraph {
         forests[lvl - 1].changeEdges(w, 1);
         forests[lvl - 1].changeEdges(v, 1);
         if (e->is_tree_edge()) {
-            forests[lvl - 1].link(v, w);
+            e->add_tree_edge(forests[lvl - 1].link(v, w));
         }
     }
 

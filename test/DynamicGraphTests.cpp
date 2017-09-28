@@ -84,6 +84,7 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
         const unsigned size = 5;
         const unsigned ops = 100;
         std::srand(42);
+        std::stringstream operations;
 
         ReferenceGraph reference(size);
         dgraph::DynamicGraph graph(size);
@@ -96,6 +97,7 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
             auto v = rand() % size;
             auto u = rand() % size;
             if (reference.is_edge(v, u)) {
+                operations << "cutting " << v << " " << u << "\n";
                 reference.remove(v, u);
                 if (!tokens[v].count(u)) {
                     std::swap(v, u);
@@ -103,9 +105,11 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
                 graph.remove(std::move(tokens[v][u]));
                 tokens[v].erase(u);
             } else {
+                operations << "linking " << v << " " << u << "\n";
                 reference.add(v, u);
                 tokens[v].insert(std::make_pair(u, std::move(graph.add(v, u))));
             }
+            INFO(operations.str());
             check(size, graph, reference);
         }
     }
