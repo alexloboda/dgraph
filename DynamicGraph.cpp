@@ -25,7 +25,7 @@ namespace dgraph {
                 while (it.hasNext()){
                     List* list = *it;
                     it++;
-                    delete list;
+                    delete list->e();
                 }
                 delete *it;
             }
@@ -156,12 +156,6 @@ namespace dgraph {
         links.push_back(link);
     }
 
-    Edge::~Edge() {
-        for (List* link : links){
-            delete link;
-        }
-    }
-
     unsigned Edge::level() {
         return lvl;
     }
@@ -187,6 +181,10 @@ namespace dgraph {
 
     bool Edge::is_tree_edge() {
         return !tree_edges.empty();
+    }
+
+    Edge::~Edge() {
+        removeLinks();
     }
 
     ListIterator::ListIterator(List* list) :list(list) {}
