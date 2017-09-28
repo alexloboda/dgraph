@@ -23,7 +23,7 @@ namespace dgraph {
         }
     }
 
-    Entry* Entry::remove() {
+    void Entry::remove() {
         splay();
         if (left != nullptr) {
             left->parent = nullptr;
@@ -31,14 +31,10 @@ namespace dgraph {
         if (right != nullptr) {
             right->parent = nullptr;
         }
-        if (left == nullptr){
-            return right;
-        }
-        if (right == nullptr){
-            return left;
+        if (left == nullptr || right == nullptr){
+            return;
         }
         merge(left, right);
-        return left;
     }
 
     void Entry::rotate(bool left_rotate){
@@ -209,17 +205,28 @@ namespace dgraph {
         if (!right_ordered) {
             std::swap(first_cut, second_cut);
         }
-        merge(cutoff(first_cut.first->rightmost()), second_cut.second);
+        Entry* to_remove = first_cut.first->rightmost();
+        if (to_remove->is_singleton()) {
+            if (second_cut.second != nullptr) {
+                change_any(second_cut.second->leftmost());
+                delete to_remove;
+            }
+        } else {
+            merge(to_remove, second_cut.second);
+            cutoff(to_remove);
+        }
         cutoff(second_cut.first->rightmost());
     }
 
-    Entry* EulerTourForest::cutoff(Entry* e) {
+    void EulerTourForest::cutoff(Entry* e) {
+        if (e->is_singleton()) {
+            return;
+        }
         if (any[e->v] == e){
             change_any(find_root(e)->leftmost());
         }
-        Entry* result = e->remove();
+        e->remove();
         delete e;
-        return result;
     }
 
     void EulerTourForest::change_any(Entry* e) {
@@ -354,6 +361,10 @@ namespace dgraph {
         Entry* curr = this;
         while (curr->right != nullptr) curr = curr->right;
         return curr;
+    }
+
+    bool Entry::is_singleton() {
+        return parent == nullptr && left == nullptr && right == nullptr;
     }
 
     TreeEdge::TreeEdge(Entry* e, Entry* t) :edge(e), twin(t) {}

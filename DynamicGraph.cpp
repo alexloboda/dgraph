@@ -132,7 +132,7 @@ namespace dgraph {
 
     List::List(unsigned u, Edge* edge, List* prev, List* next) :u(u), edge(edge), prev(prev), next(next){}
 
-    List::List() {
+    List::List() :edge(nullptr) {
         next = this;
         prev = this;
         u = std::numeric_limits<unsigned>::max();

@@ -20,13 +20,14 @@ namespace dgraph {
 
         void splay();
         void rotate(bool);
-        Entry* remove();
+        void remove();
         Entry* succ();
         Entry* leftmost();
         Entry* rightmost();
         void recalc();
         bool good();
         Iterator iterator();
+        bool is_singleton();
 
         friend Entry* merge(Entry*, Entry*);
         friend std::pair<Entry*, Entry*> split(Entry*, bool);
@@ -67,7 +68,7 @@ namespace dgraph {
         Entry* make_root(unsigned v);
         Entry* expand(unsigned v);
         void change_any(Entry* e);
-        Entry* cutoff(Entry* e);
+        void cutoff(Entry* e);
         void cut(Entry*, Entry*);
 
     public:
