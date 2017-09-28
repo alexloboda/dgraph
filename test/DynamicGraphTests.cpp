@@ -26,17 +26,21 @@ namespace {
             adj[u][v] = false;
         }
 
+        bool is_edge(unsigned v, unsigned u){
+            return adj[v][u];
+        }
+
         bool is_connected(unsigned v, unsigned u){
             vector<bool> vis(adj.size(), false);
             queue<unsigned> q;
             vis[v] = true;
             q.push(v);
-            while (q.empty()) {
+            while (!q.empty()) {
                 unsigned w = q.front();
                 q.pop();
                 for (unsigned i = 0; i < adj.size(); i++) {
                     if (adj[w][i] && !vis[i]) {
-                        vis[i];
+                        vis[i] = true;
                         q.push(i);
                     }
                 }
@@ -48,7 +52,9 @@ namespace {
     void check(unsigned size, dgraph::DynamicGraph& graph, ReferenceGraph& reference){
         for (unsigned i = 0; i < size; i++) {
             for (unsigned j = 0; j < size; j++) {
-                REQUIRE(graph.is_connected(i, j) == reference.is_connected(i, j));
+                bool expected = reference.is_connected(i, j);
+                INFO(i << " and " << j << " actually are " << (expected ? "" : " not") << "connected");
+                REQUIRE(graph.is_connected(i, j) == expected);
             }
         }
     }
@@ -75,11 +81,9 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
     }
 
     SECTION("random operations on small graph"){
-        const unsigned size = 10;
-        const unsigned ops = 1000;
-        std::random_device rd;
-        std::mt19937 rng(rd());
-        std::uniform_int_distribution<int> uni(0, size - 1);
+        const unsigned size = 5;
+        const unsigned ops = 100;
+        std::srand(42);
 
         ReferenceGraph reference(size);
         dgraph::DynamicGraph graph(size);
@@ -89,15 +93,15 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
         }
         check(size, graph, reference);
         for (unsigned i = 0; i < ops; i++) {
-            auto v = (unsigned)uni(rng);
-            auto u = (unsigned)uni(rng);
-            if (reference.is_connected(v, u)) {
-                //reference.remove(v, u);
-                //if (!tokens[v].count(u)) {
-                //    std::swap(v, u);
-                //}
-                //graph.remove(std::move(tokens[v][u]));
-                //tokens[v].erase(u);
+            auto v = rand() % size;
+            auto u = rand() % size;
+            if (reference.is_edge(v, u)) {
+                reference.remove(v, u);
+                if (!tokens[v].count(u)) {
+                    std::swap(v, u);
+                }
+                graph.remove(std::move(tokens[v][u]));
+                tokens[v].erase(u);
             } else {
                 reference.add(v, u);
                 tokens[v].insert(std::make_pair(u, std::move(graph.add(v, u))));

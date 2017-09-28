@@ -37,6 +37,7 @@ namespace dgraph {
         Edge* edge;
         explicit EdgeToken(Edge*);
     public:
+        EdgeToken();
         EdgeToken(const EdgeToken&) = delete;
         EdgeToken& operator=(const EdgeToken&) = delete;
         EdgeToken(EdgeToken&&) noexcept;

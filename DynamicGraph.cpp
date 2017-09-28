@@ -33,6 +33,9 @@ namespace dgraph {
     }
 
     EdgeToken DynamicGraph::add(unsigned v, unsigned u) {
+        if (v == u) {
+            return EdgeToken(nullptr);
+        }
         unsigned n = size - 1;
         auto* edge = new Edge(n, v, u);
         if (!is_connected(v, u)) {
@@ -47,6 +50,9 @@ namespace dgraph {
 
     void DynamicGraph::remove(EdgeToken&& edge_token) {
         Edge* link = edge_token.edge;
+        if (link == nullptr) {
+            return;
+        }
         unsigned v = link->from();
         unsigned u = link->to();
         bool complex_deletion = link->is_tree_edge();
@@ -208,4 +214,6 @@ namespace dgraph {
     EdgeToken::EdgeToken(EdgeToken&& e) noexcept :edge(e.edge){
         e.edge = nullptr;
     }
+
+    EdgeToken::EdgeToken() :edge(nullptr){}
 }
