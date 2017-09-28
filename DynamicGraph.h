@@ -3,9 +3,11 @@
 
 #include "EulerTourForest.h"
 
-namespace dgraph {
+namespace {
     using std::vector;
+}
 
+namespace dgraph {
     class List;
     class ListIterator;
     class DynamicGraph;
