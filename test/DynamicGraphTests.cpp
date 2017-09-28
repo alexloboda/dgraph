@@ -75,8 +75,8 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
     }
 
     SECTION("random operations on small graph"){
-        const unsigned size = 5;
-        const unsigned ops = 100;
+        const unsigned size = 10;
+        const unsigned ops = 1000;
         std::random_device rd;
         std::mt19937 rng(rd());
         std::uniform_int_distribution<int> uni(0, size - 1);
@@ -92,11 +92,17 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
             auto v = (unsigned)uni(rng);
             auto u = (unsigned)uni(rng);
             if (reference.is_connected(v, u)) {
-
+                //reference.remove(v, u);
+                //if (!tokens[v].count(u)) {
+                //    std::swap(v, u);
+                //}
+                //graph.remove(std::move(tokens[v][u]));
+                //tokens[v].erase(u);
             } else {
                 reference.add(v, u);
                 tokens[v].insert(std::make_pair(u, std::move(graph.add(v, u))));
             }
+            check(size, graph, reference);
         }
     }
 }
