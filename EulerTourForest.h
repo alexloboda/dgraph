@@ -15,6 +15,7 @@ namespace dgraph {
         unsigned v;
         unsigned size;
         unsigned edges;
+        bool good;
 
         explicit Entry(unsigned , Entry* = nullptr, Entry* = nullptr, Entry* = nullptr);
 
@@ -25,7 +26,6 @@ namespace dgraph {
         Entry* leftmost();
         Entry* rightmost();
         void recalc();
-        bool good();
         Iterator iterator();
         bool is_singleton();
         std::string str();

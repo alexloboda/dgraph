@@ -1,7 +1,6 @@
 #include "EulerTourForest.h"
 #include <utility>
 #include <list>
-#include <assert.h>
 
 namespace dgraph {
 
@@ -93,7 +92,8 @@ namespace dgraph {
         return e;
     }
 
-    Entry::Entry(unsigned v, Entry* l, Entry* r, Entry* p) : left(l), right(r), parent(p), v(v), size(1), edges(0) {}
+    Entry::Entry(unsigned v, Entry* l, Entry* r, Entry* p) : left(l), right(r), parent(p), v(v),
+                                                             size(1), edges(0), good(false) {}
 
     Entry* Entry::succ() {
         Entry* curr = this;
@@ -137,11 +137,14 @@ namespace dgraph {
 
     void Entry::recalc() {
         size = 1;
+        good = edges > 0;
         if(right != nullptr){
             size += right->size;
+            good |= right->edges > 0;
         }
         if(left != nullptr){
             size += left->size;
+            good |= left->edges > 0;
         }
     }
 
@@ -296,10 +299,10 @@ namespace dgraph {
     Iterator::Iterator(Entry* entry) :entry(entry){}
 
     Iterator& Iterator::operator++() {
-        if (entry->right != nullptr && entry->right->good()){
+        if (entry->right != nullptr && entry->right->good){
             entry = entry->right;
             while (true){
-                if (entry->left != nullptr && entry->left->good()){
+                if (entry->left != nullptr && entry->left->good){
                     entry = entry->left;
                     continue;
                 }
@@ -339,7 +342,7 @@ namespace dgraph {
     Iterator Entry::iterator() {
         Entry* curr = find_root(this)->leftmost();
         Iterator iterator(curr);
-        if(!curr->good()) {
+        if(!curr->good) {
             ++iterator;
         }
         return iterator;
@@ -357,17 +360,6 @@ namespace dgraph {
             e = e->succ();
         }
         return str;
-    }
-
-    bool Entry::good() {
-        unsigned sum = 0;
-        if (left != nullptr){
-            sum += left->edges;
-        }
-        if (right != nullptr){
-            sum += right->edges;
-        }
-        return sum != edges;
     }
 
     Entry* Entry::leftmost() {
