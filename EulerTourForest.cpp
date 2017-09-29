@@ -1,6 +1,7 @@
 #include "EulerTourForest.h"
 #include <utility>
 #include <list>
+#include <assert.h>
 
 namespace dgraph {
 
@@ -200,7 +201,7 @@ namespace dgraph {
 
     void EulerTourForest::cut(Entry* first, Entry* last) {
         auto first_cut = split(first, true);
-        bool right_ordered = first_cut.second == nullptr || find_root(first_cut.second) == find_root(last);
+        bool right_ordered = first_cut.second != nullptr && find_root(first_cut.second) == find_root(last);
         auto second_cut = split(last, true);
         if (!right_ordered) {
             std::swap(first_cut, second_cut);

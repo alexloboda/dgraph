@@ -83,7 +83,7 @@ namespace dgraph {
                     while(lit.hasNext()){
                         unsigned up = (*lit)->vertex();
                         if(is_connected(up, u)){
-                            for (unsigned j = i; j < size; j++){
+                            for (unsigned j = size - 1; j >= i; j--){
                                 (*lit)->e()->add_tree_edge(forests[j].link(w, up));
                             }
                             return;
