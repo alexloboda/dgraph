@@ -57,6 +57,8 @@ namespace dgraph {
         unsigned u = link->to();
         bool complex_deletion = link->is_tree_edge();
         unsigned level = link->level();
+        forests[level].changeEdges(v, -1);
+        forests[level].changeEdges(u, -1);
 
         if (complex_deletion) {
             for (unsigned i = 0; i <= size - level - 1; i++){
@@ -115,13 +117,21 @@ namespace dgraph {
         return forests[forests.size() - 1].is_connected(v, u);
     }
 
-    std::string to_string(DynamicGraph& graph) {
+    std::string DynamicGraph::str() {
         std::string str;
-        for(unsigned i = 0; i < graph.size; i++){
+        for(unsigned i = 0; i < size; i++){
             str += "level " + std::to_string(i) + ": \n";
-            str += to_string(graph.forests[i]) + "\n";
+            str += forests[i].str() + "\n";
         }
         return str;
+    }
+
+    unsigned DynamicGraph::degree(unsigned v) {
+        unsigned sum = 0;
+        for (unsigned i = 0; i < size; i++) {
+            sum += forests[i].degree(v);
+        }
+        return sum;
     }
 
     List* List::add(unsigned v, Edge* edge) {

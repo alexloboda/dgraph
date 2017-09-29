@@ -239,7 +239,7 @@ namespace dgraph {
     }
 
     void EulerTourForest::change_any(Entry* e) {
-        unsigned edges = e->edges;
+        unsigned edges = any[e->v]->edges;
         unsigned v = e->v;
         changeEdges(v, -edges);
         any[v] = e;
@@ -264,16 +264,21 @@ namespace dgraph {
         return any[v]->iterator();
     }
 
-    std::string to_string(EulerTourForest& graph) {
+    std::string EulerTourForest::str() {
         std::string str;
-        std::vector<bool> vis(graph.n, false);
-        for(unsigned i = 0; i < graph.n; i++){
-            Entry* curr = find_root(graph.any[i]);
+        std::vector<bool> vis(n, false);
+        for (unsigned i = 0; i < n; i++) {
+            Entry* curr = find_root(any[i]);
             if(!vis[curr->vertex()]){
                 vis[curr->vertex()] = true;
-                str += to_string(curr) + "\n";
+                str += curr->str() + "\n";
             }
         }
+        str += "edges: \n";
+        for (unsigned i = 0; i < n; i++) {
+            str += std::to_string(any[i]->edges) + " ";
+        }
+        str += "\n";
         return str;
     }
 
@@ -281,6 +286,10 @@ namespace dgraph {
         if (edge.edge != nullptr) {
             cut(edge.edge, edge.twin);
         }
+    }
+
+    unsigned EulerTourForest::degree(unsigned v) {
+        return any[v]->edges;
     }
 
     Iterator::Iterator(Entry* entry) :entry(entry){}
@@ -339,9 +348,9 @@ namespace dgraph {
         return v;
     }
 
-    std::string to_string(Entry* e) {
+    std::string Entry::str() {
         std::string str;
-        e = e->leftmost();
+        Entry* e = leftmost();
         while(e != nullptr){
             str += std::to_string(e->v);
             e = e->succ();

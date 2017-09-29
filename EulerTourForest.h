@@ -28,6 +28,7 @@ namespace dgraph {
         bool good();
         Iterator iterator();
         bool is_singleton();
+        std::string str();
 
         friend Entry* merge(Entry*, Entry*);
         friend std::pair<Entry*, Entry*> split(Entry*, bool);
@@ -38,8 +39,6 @@ namespace dgraph {
 
     public:
         unsigned vertex();
-
-        friend std::string to_string(Entry*);
     };
 
     class Iterator {
@@ -84,8 +83,8 @@ namespace dgraph {
         void changeEdges(unsigned v, int n);
         unsigned size(unsigned v);
         Iterator iterator(unsigned v);
-
-        friend std::string to_string(EulerTourForest&);
+        std::string str();
+        unsigned degree(unsigned v);
     };
 }
 

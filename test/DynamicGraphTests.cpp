@@ -47,6 +47,25 @@ namespace {
             }
             return vis[u];
         }
+
+        unsigned degree(unsigned v) {
+            unsigned sum = 0;
+            for (unsigned i = 0; i < adj.size(); i++) {
+                sum += adj[v][i] == 1;
+            }
+            return sum;
+        }
+
+        std::string str(){
+            std::stringstream buf;
+            for (unsigned i = 0; i < adj.size(); i++) {
+                for (unsigned j = 0; j < adj.size(); j++) {
+                    buf << adj[i][j] << " ";
+                }
+                buf << "\n";
+            }
+            return buf.str();
+        }
     };
 
     void check(unsigned size, dgraph::DynamicGraph& graph, ReferenceGraph& reference){
@@ -56,6 +75,10 @@ namespace {
                 INFO(i << " and " << j << " actually are " << (expected ? "" : " not") << "connected");
                 REQUIRE(graph.is_connected(i, j) == expected);
             }
+        }
+        for (unsigned i = 0; i < size; i++) {
+            INFO("vertex " << i << " actually has " << reference.degree(i) << " but " << graph.degree(i) << " given");
+            REQUIRE(graph.degree(i) == reference.degree(i));
         }
     }
 }
@@ -94,8 +117,14 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
         }
         check(size, graph, reference);
         for (unsigned i = 0; i < ops; i++) {
+            INFO("op " << i);
+            INFO("old:\n" << graph.str());
             auto v = rand() % size;
             auto u = rand() % size;
+            if (v == u) {
+                i--;
+                continue;
+            }
             if (reference.is_edge(v, u)) {
                 operations << "cutting " << v << " " << u << "\n";
                 reference.remove(v, u);
@@ -110,6 +139,8 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
                 tokens[v].insert(std::make_pair(u, std::move(graph.add(v, u))));
             }
             INFO(operations.str());
+            INFO("adj:\n" << reference.str());
+            INFO("new:\n" << graph.str());
             check(size, graph, reference);
         }
     }

@@ -61,8 +61,8 @@ namespace dgraph {
         EdgeToken add(unsigned v, unsigned u);
         void remove(EdgeToken&&);
         bool is_connected(unsigned v, unsigned u);
-
-        friend std::string to_string(DynamicGraph&);
+        std::string str();
+        unsigned degree(unsigned v);
     };
 
     class List {
