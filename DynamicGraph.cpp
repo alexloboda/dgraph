@@ -106,6 +106,7 @@ namespace dgraph {
                     for (unsigned j = size - 1; j >= i; j--){
                         replacement->add_tree_edge(forests[j].link(replacement->v, replacement->u));
                     }
+                    break;
                 }
             }
         }
