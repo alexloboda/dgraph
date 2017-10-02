@@ -76,22 +76,36 @@ namespace dgraph {
                     std::swap(v, u);
                 }
                 // and iterate over good vertices until success
+                // propagating all tree edges of smallest component
+                Edge* replacement = nullptr;
                 Iterator it = forests[i].iterator(v);
                 while(it.hasNext()){
                     unsigned w = *it;
                     ListIterator lit = adjLists[i][w]->iterator();
                     while(lit.hasNext()){
-                        unsigned up = (*lit)->vertex();
-                        if(is_connected(up, u)){
-                            for (unsigned j = size - 1; j >= i; j--){
-                                (*lit)->e()->add_tree_edge(forests[j].link(w, up));
-                            }
-                            return;
+                        List* l = *(lit++);
+                        Edge* e = l->e();
+                        unsigned up = l->vertex();
+                        if (e->is_tree_edge()) {
+                            downgrade(e);
                         } else {
-                            downgrade((*(lit++))->e());
+                            if (replacement != nullptr) {
+                                break;
+                            }
+                            if (is_connected(up, u)) {
+                                replacement = e;
+                            } else {
+                                downgrade(e);
+                            }
                         }
                     }
                     ++it;
+                }
+
+                if (replacement != nullptr) {
+                    for (unsigned j = size - 1; j >= i; j--){
+                        replacement->add_tree_edge(forests[j].link(replacement->v, replacement->u));
+                    }
                 }
             }
         }
@@ -134,11 +148,18 @@ namespace dgraph {
         return sum;
     }
 
-    List* List::add(unsigned v, Edge* edge) {
-        auto* newList = new List(v, edge, this, next);
-        next->prev = newList;
-        next = newList;
-        return newList;
+    List* List::add(unsigned v, Edge* edge, bool in_front) {
+        List* curr = this;
+        List* new_list;
+        if (in_front) {
+            new_list = new List(v, edge, this, next);
+        } else {
+            new_list = new List(v, edge, prev, this);
+            curr = prev;
+        }
+        curr->next->prev = new_list;
+        curr->next = new_list;
+        return new_list;
     }
 
     List::~List() {
