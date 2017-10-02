@@ -140,11 +140,11 @@ namespace dgraph {
         good = edges > 0;
         if(right != nullptr){
             size += right->size;
-            good |= right->edges > 0;
+            good |= right->good;
         }
         if(left != nullptr){
             size += left->size;
-            good |= left->edges > 0;
+            good |= left->good;
         }
     }
 
