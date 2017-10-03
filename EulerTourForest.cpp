@@ -255,9 +255,23 @@ namespace dgraph {
     }
 
     void EulerTourForest::changeEdges(unsigned v, int n) {
-        any[v]->splay();
-        any[v]->edges += n;
-        any[v]->recalc();
+        Entry* curr = any[v];
+        curr->edges += n;
+        while (curr != nullptr) {
+            bool good = curr->edges > 0;
+            if (curr->left != nullptr) {
+                good |= curr->left->good;
+            }
+            if (curr->right != nullptr) {
+                good |= curr->right->good;
+            }
+            if (good != curr->good) {
+                curr->good = good;
+                curr = curr->parent;
+            } else {
+                return;
+            }
+        }
     }
 
     unsigned EulerTourForest::size(unsigned v) {
