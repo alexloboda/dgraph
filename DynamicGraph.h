@@ -75,7 +75,8 @@ namespace dgraph {
     public:
         List();
 
-        List* add(unsigned , Edge*, bool in_front = false);
+        List* add(unsigned , Edge*);
+        List* add_to_front(unsigned , Edge*);
         ListIterator iterator();
         unsigned vertex();
         Edge* e();

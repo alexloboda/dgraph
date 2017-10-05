@@ -149,17 +149,17 @@ namespace dgraph {
         return sum;
     }
 
-    List* List::add(unsigned v, Edge* edge, bool in_front) {
-        List* curr = this;
-        List* new_list;
-        if (in_front) {
-            new_list = new List(v, edge, this, next);
-        } else {
-            new_list = new List(v, edge, prev, this);
-            curr = prev;
-        }
-        curr->next->prev = new_list;
-        curr->next = new_list;
+    List* List::add_to_front(unsigned v, Edge* edge){
+        List* new_list = new List(v, edge, this, next);
+        next->prev = new_list;
+        next = new_list;
+        return new_list;
+    }
+
+    List* List::add(unsigned v, Edge* edge) {
+        List* new_list = new List(v, edge, prev, this);
+        prev->next = new_list;
+        prev = new_list;
         return new_list;
     }
 

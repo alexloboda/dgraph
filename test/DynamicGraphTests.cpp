@@ -104,8 +104,8 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
     }
 
     SECTION("random operations on small graph"){
-        const unsigned size = 7;
-        const unsigned ops = 10000;
+        const unsigned size = 50;
+        const unsigned ops = 100000;
         std::srand(42);
         std::stringstream operations;
 
