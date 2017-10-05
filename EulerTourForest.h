@@ -64,6 +64,7 @@ namespace dgraph {
     class EulerTourForest {
         int n;
         std::vector<Entry*> any;
+        Entry* any_root;
         Entry* make_root(unsigned v);
         Entry* expand(unsigned v);
         void change_any(Entry* e);

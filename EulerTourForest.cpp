@@ -198,11 +198,12 @@ namespace dgraph {
     TreeEdge EulerTourForest::link(unsigned v, unsigned u) {
         Entry* l = expand(v);
         Entry* r = expand(u);
-        merge(l, r);
+        any_root = merge(l, r);
         return {l, r};
     }
 
     void EulerTourForest::cut(Entry* first, Entry* last) {
+        any_root = nullptr;
         auto first_cut = split(first, true);
         bool right_ordered = first_cut.second != nullptr && find_root(first_cut.second) == find_root(last);
         auto second_cut = split(last, true);
@@ -251,6 +252,9 @@ namespace dgraph {
     }
 
     bool EulerTourForest::is_connected(unsigned v, unsigned u) {
+        if (any_root != nullptr && any_root->size == 2 * (n - 1)) {
+            return true;
+        }
         return find_root(any[v]) == find_root(any[u]);
     }
 
