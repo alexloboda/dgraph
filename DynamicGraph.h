@@ -16,9 +16,9 @@ namespace dgraph {
         unsigned lvl;
         unsigned v;
         unsigned u;
-        std::vector<List*> links;
+        std::pair<List*, List*> links;
         std::vector<TreeEdge> tree_edges;
-        void subscribe(List*);
+        void subscribe(List*, List*);
         void removeLinks();
         void add_tree_edge(TreeEdge&&);
     public:

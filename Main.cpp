@@ -10,6 +10,8 @@
 
 #include <algorithm>
 
+#include <gperftools/profiler.h>
+
 namespace {
     class Tree;
 
@@ -338,6 +340,7 @@ namespace {
 
 
 int main(int argc, char** argv) {
+    ProfilerStart("../a.prof");
     istringstream pss(argv[1]);
     unsigned permutations;
     pss >> permutations;
@@ -348,4 +351,5 @@ int main(int argc, char** argv) {
     for (int i = 0; i < permutations; i++) {
         s.shakeit();
     }
+    ProfilerStop();
 }

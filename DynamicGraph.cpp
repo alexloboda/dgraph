@@ -43,8 +43,7 @@ namespace dgraph {
         }
         forests[n].changeEdges(v, 1);
         forests[n].changeEdges(u, 1);
-        edge->subscribe(adjLists[n][v]->add(u, edge));
-        edge->subscribe(adjLists[n][u]->add(v, edge));
+        edge->subscribe(adjLists[n][v]->add(u, edge), adjLists[n][u]->add(v, edge));
         return EdgeToken(edge);
     }
 
@@ -117,8 +116,7 @@ namespace dgraph {
         unsigned w = e->to();
         unsigned lvl = e->lvl--;
         e->removeLinks();
-        e->subscribe(adjLists[lvl - 1][w]->add(v, e));
-        e->subscribe(adjLists[lvl - 1][v]->add(w, e));
+        e->subscribe(adjLists[lvl - 1][w]->add(v, e), adjLists[lvl - 1][v]->add(w, e));
         forests[lvl].changeEdges(w, -1);
         forests[lvl].changeEdges(v, -1);
         forests[lvl - 1].changeEdges(w, 1);
@@ -190,8 +188,8 @@ namespace dgraph {
 
     Edge::Edge(unsigned lvl, unsigned v, unsigned u) : lvl(lvl), v(v), u(u) {}
 
-    void Edge::subscribe(List* link) {
-        links.push_back(link);
+    void Edge::subscribe(List* first, List* second) {
+        links = std::make_pair(first, second);
     }
 
     unsigned Edge::level() {
@@ -199,10 +197,9 @@ namespace dgraph {
     }
 
     void Edge::removeLinks() {
-        for(List* l: links){
-            delete l;
-        }
-        links.clear();
+        delete links.first;
+        delete links.second;
+        links = std::make_pair(nullptr, nullptr);
     }
 
     unsigned Edge::from() {
