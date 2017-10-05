@@ -260,6 +260,9 @@ namespace {
             unsigned num = 0;
             unsigned v, u;
             while (fin >> v >> u) {
+                if (v == u) {
+                    continue;
+                }
                 num++;
                 EdgeToken token = graph.add(v, u);
                 tokens.push_back(std::move(token));
@@ -341,7 +344,7 @@ int main(int argc, char** argv) {
     istringstream nss(argv[2]);
     unsigned n;
     nss >> n;
-    Shuffler s("../testnet", permutations, n);
+    Shuffler s("../net", permutations, n);
     for (int i = 0; i < permutations; i++) {
         s.shakeit();
     }
