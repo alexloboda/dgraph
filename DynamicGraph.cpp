@@ -247,5 +247,11 @@ namespace dgraph {
         e.edge = nullptr;
     }
 
+    EdgeToken& EdgeToken::operator=(EdgeToken&& other) noexcept {
+        edge = other.edge;
+        other.edge = nullptr;
+        return *this;
+    }
+
     EdgeToken::EdgeToken() :edge(nullptr){}
 }

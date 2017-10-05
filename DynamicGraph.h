@@ -40,6 +40,7 @@ namespace dgraph {
         EdgeToken();
         EdgeToken(const EdgeToken&) = delete;
         EdgeToken& operator=(const EdgeToken&) = delete;
+        EdgeToken& operator=(EdgeToken&&) noexcept;
         EdgeToken(EdgeToken&&) noexcept;
         ~EdgeToken() = default;
 
