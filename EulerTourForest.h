@@ -29,6 +29,7 @@ namespace dgraph {
         Iterator iterator();
         bool is_singleton();
         std::string str();
+        unsigned depth(unsigned);
 
         friend Entry* merge(Entry*, Entry*);
         friend std::pair<Entry*, Entry*> split(Entry*, bool);
@@ -78,6 +79,7 @@ namespace dgraph {
         EulerTourForest(EulerTourForest&&) noexcept;
         ~EulerTourForest();
 
+        unsigned depth();
         bool is_connected(unsigned v, unsigned u);
         TreeEdge link(unsigned v, unsigned u);
         void cut(TreeEdge&&);

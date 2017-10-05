@@ -258,6 +258,22 @@ namespace dgraph {
         return find_root(any[v]) == find_root(any[u]);
     }
 
+    unsigned EulerTourForest::depth() {
+        Entry* e = any_root;
+        return e->depth(1);
+    }
+
+    unsigned Entry::depth(unsigned value) {
+        unsigned counter = value;
+        if (left != nullptr) {
+            counter += left->depth(value + 1);
+        }
+        if (right != nullptr) {
+            counter += right->depth(value + 1);
+        }
+        return counter;
+    }
+
     void EulerTourForest::changeEdges(unsigned v, int n) {
         Entry* curr = any[v];
         curr->edges += n;

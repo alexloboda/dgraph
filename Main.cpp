@@ -282,6 +282,10 @@ namespace {
             rng_coin = uniform_int_distribution<>(0, number - 1);
         }
 
+        unsigned depth(){
+            return graph.depth();
+        }
+
         tuple<unsigned, unsigned, unsigned> pick_an_edge(){
             int k = rng_coin(mersenne);
             unsigned j = std::upper_bound(cum.begin(), cum.end(), k) - cum.begin() - 1;
@@ -351,5 +355,6 @@ int main(int argc, char** argv) {
     for (int i = 0; i < permutations; i++) {
         s.shakeit();
     }
+    std::cout << s.depth() / (double)n << std::endl;
     ProfilerStop();
 }

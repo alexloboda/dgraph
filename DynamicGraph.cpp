@@ -126,6 +126,10 @@ namespace dgraph {
         }
     }
 
+    unsigned DynamicGraph::depth() {
+        return forests[forests.size() - 1].depth();
+    }
+
     bool DynamicGraph::is_connected(unsigned v, unsigned u) {
         return forests[forests.size() - 1].is_connected(v, u);
     }
