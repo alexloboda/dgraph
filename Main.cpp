@@ -23,7 +23,8 @@ namespace {
         vector<EdgeToken> tokens;
         vector<pair<unsigned , unsigned>> ends;
         DynamicGraph graph;
-        std::uniform_int_distribution<unsigned > rng_coin;
+        std::uniform_int_distribution<unsigned> rng_coin;
+        std::uniform_int_distribution<unsigned> rng_for_ends;
         mt19937 mersenne;
     public:
         Shuffler(string filename, long permutations, long n) : graph(n), n(n) {
@@ -43,22 +44,35 @@ namespace {
                 ends.emplace_back(v, u);
             }
             rng_coin = uniform_int_distribution<unsigned>(0, tokens.size() - 1);
+            rng_for_ends = uniform_int_distribution<unsigned>(0, 3);
         }
 
         unsigned depth(){
             return graph.depth();
         }
 
+
+
         void shakeit(){
             while (true) {
                 unsigned e1 = rng_coin(mersenne);
                 unsigned e2 = rng_coin(mersenne);
+                unsigned ends_direct = rng_for_ends(mersenne);
                 auto edge = ends[e1];
                 auto other = ends[e2];
                 unsigned v = edge.first;
                 unsigned u = edge.second;
                 unsigned w = other.first;
                 unsigned z = other.second;
+
+                if (ends_direct / 2 == 0) {
+                    std::swap(v, u);
+                }
+
+                if (ends_direct % 2 == 0) {
+                    std::swap(w, z);
+                }
+
                 if (e1 == e2)
                     continue;
                 if (v == z || w == u || edges[v][z] || edges[w][u]) {
