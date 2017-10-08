@@ -71,6 +71,7 @@ namespace dgraph {
         void change_any(Entry* e);
         void cutoff(Entry* e, Entry* replacement = nullptr);
         void cut(Entry*, Entry*);
+        void repair_edges_number(Entry*);
 
     public:
         explicit EulerTourForest(unsigned);
@@ -83,7 +84,9 @@ namespace dgraph {
         bool is_connected(unsigned v, unsigned u);
         TreeEdge link(unsigned v, unsigned u);
         void cut(TreeEdge&&);
-        void changeEdges(unsigned v, int n);
+        void increment_edges(unsigned v);
+        void decrement_edges(unsigned v);
+        void change_edges(unsigned v, unsigned n);
         unsigned size(unsigned v);
         Iterator iterator(unsigned v);
         std::string str();

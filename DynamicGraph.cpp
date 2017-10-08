@@ -41,8 +41,8 @@ namespace dgraph {
         if (!is_connected(v, u)) {
             edge->add_tree_edge(forests[n].link(v, u));
         }
-        forests[n].changeEdges(v, 1);
-        forests[n].changeEdges(u, 1);
+        forests[n].increment_edges(v);
+        forests[n].increment_edges(u);
         edge->subscribe(adjLists[n][v]->add(u, edge), adjLists[n][u]->add(v, edge));
         return EdgeToken(edge);
     }
@@ -56,8 +56,8 @@ namespace dgraph {
         unsigned u = link->to();
         bool complex_deletion = link->is_tree_edge();
         unsigned level = link->level();
-        forests[level].changeEdges(v, -1);
-        forests[level].changeEdges(u, -1);
+        forests[level].decrement_edges(v);
+        forests[level].decrement_edges(u);
 
         if (complex_deletion) {
             for (unsigned i = 0; i <= size - level - 1; i++){
@@ -117,10 +117,10 @@ namespace dgraph {
         unsigned lvl = e->lvl--;
         e->removeLinks();
         e->subscribe(adjLists[lvl - 1][w]->add(v, e), adjLists[lvl - 1][v]->add(w, e));
-        forests[lvl].changeEdges(w, -1);
-        forests[lvl].changeEdges(v, -1);
-        forests[lvl - 1].changeEdges(w, 1);
-        forests[lvl - 1].changeEdges(v, 1);
+        forests[lvl].decrement_edges(w);
+        forests[lvl].decrement_edges(v);
+        forests[lvl - 1].increment_edges(w);
+        forests[lvl - 1].increment_edges(v);
         if (e->is_tree_edge()) {
             e->add_tree_edge(forests[lvl - 1].link(v, w));
         }

@@ -25,9 +25,9 @@ TEST_CASE("Euler tour forest works fine on simple tests", "[etf]"){
             }
 
             SECTION("checking iterator"){
-                forest.changeEdges(2, 1);
-                forest.changeEdges(4, 1);
-                forest.changeEdges(2, -1);
+                forest.change_edges(2, 1);
+                forest.change_edges(4, 1);
+                forest.change_edges(2, 0);
                 auto iterator = forest.iterator(1);
                 std::set<int> vs;
                 while(iterator.hasNext()){

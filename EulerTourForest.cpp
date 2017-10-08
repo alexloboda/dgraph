@@ -246,9 +246,9 @@ namespace dgraph {
     void EulerTourForest::change_any(Entry* e) {
         unsigned edges = any[e->v]->edges;
         unsigned v = e->v;
-        changeEdges(v, -edges);
+        change_edges(v, 0);
         any[v] = e;
-        changeEdges(v, edges);
+        change_edges(v, edges);
     }
 
     bool EulerTourForest::is_connected(unsigned v, unsigned u) {
@@ -274,9 +274,30 @@ namespace dgraph {
         return counter;
     }
 
-    void EulerTourForest::changeEdges(unsigned v, int n) {
+    void EulerTourForest::increment_edges(unsigned v) {
         Entry* curr = any[v];
-        curr->edges += n;
+        ++curr->edges;
+        if (curr->edges == 1) {
+            curr->good = true;
+            repair_edges_number(curr->parent);
+        }
+    }
+
+    void EulerTourForest::decrement_edges(unsigned v) {
+        Entry* curr = any[v];
+        ++curr->edges;
+        if (curr->edges == 0) {
+            repair_edges_number(curr);
+        }
+    }
+
+    void EulerTourForest::change_edges(unsigned v, unsigned n) {
+        Entry* curr = any[v];
+        curr->edges = n;
+        repair_edges_number(curr);
+    }
+
+    void EulerTourForest::repair_edges_number(Entry* curr){
         while (curr != nullptr) {
             bool good = curr->edges > 0;
             if (curr->left != nullptr) {

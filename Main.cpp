@@ -51,8 +51,6 @@ namespace {
             return graph.depth();
         }
 
-
-
         void shakeit(){
             while (true) {
                 unsigned e1 = rng_coin(mersenne);
