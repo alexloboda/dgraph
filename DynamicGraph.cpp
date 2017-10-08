@@ -56,14 +56,15 @@ namespace dgraph {
         unsigned u = link->to();
         bool complex_deletion = link->is_tree_edge();
         unsigned level = link->level();
-        forests[level].decrement_edges(v);
-        forests[level].decrement_edges(u);
 
         if (complex_deletion) {
             for (unsigned i = 0; i <= size - level - 1; i++){
                 forests[size - i - 1].cut(std::move(link->tree_edges[i]));
             }
         }
+
+        forests[level].decrement_edges(v);
+        forests[level].decrement_edges(u);
 
         delete link;
 

@@ -285,7 +285,7 @@ namespace dgraph {
 
     void EulerTourForest::decrement_edges(unsigned v) {
         Entry* curr = any[v];
-        ++curr->edges;
+        --curr->edges;
         if (curr->edges == 0) {
             repair_edges_number(curr);
         }
