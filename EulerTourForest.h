@@ -80,7 +80,6 @@ namespace dgraph {
         EulerTourForest(EulerTourForest&&) noexcept;
         ~EulerTourForest();
 
-        unsigned depth();
         bool is_connected(unsigned v, unsigned u);
         bool is_connected();
         TreeEdge link(unsigned v, unsigned u);
@@ -92,6 +91,7 @@ namespace dgraph {
         Iterator iterator(unsigned v);
         std::string str();
         unsigned degree(unsigned v);
+        unsigned component_size(unsigned v);
     };
 }
 

@@ -60,13 +60,13 @@ namespace dgraph {
         DynamicGraph&operator=(const DynamicGraph&) = delete;
         ~DynamicGraph();
 
-        unsigned depth();
         EdgeToken add(unsigned v, unsigned u);
         void remove(EdgeToken&&);
         bool is_connected(unsigned v, unsigned u);
         bool is_connected();
         std::string str();
         unsigned degree(unsigned v);
+        unsigned component_size(unsigned v);
     };
 
     class List {

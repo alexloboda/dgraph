@@ -262,22 +262,6 @@ namespace dgraph {
         return find_root(any[v]) == find_root(any[u]);
     }
 
-    unsigned EulerTourForest::depth() {
-        Entry* e = any_root;
-        return e->depth(1);
-    }
-
-    unsigned Entry::depth(unsigned value) {
-        unsigned counter = value;
-        if (left != nullptr) {
-            counter += left->depth(value + 1);
-        }
-        if (right != nullptr) {
-            counter += right->depth(value + 1);
-        }
-        return counter;
-    }
-
     void EulerTourForest::increment_edges(unsigned v) {
         Entry* curr = any[v];
         ++curr->edges;
@@ -353,6 +337,14 @@ namespace dgraph {
 
     unsigned EulerTourForest::degree(unsigned v) {
         return any[v]->edges;
+    }
+
+    unsigned EulerTourForest::component_size(unsigned v) {
+        unsigned size = size(v);
+        if (size == 1) {
+            return 1;
+        }
+        return size / 2 + 1;
     }
 
     Iterator::Iterator(Entry* entry) :entry(entry){}

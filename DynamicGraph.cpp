@@ -127,10 +127,6 @@ namespace dgraph {
         }
     }
 
-    unsigned DynamicGraph::depth() {
-        return forests[forests.size() - 1].depth();
-    }
-
     bool DynamicGraph::is_connected(unsigned v, unsigned u) {
         return forests[forests.size() - 1].is_connected(v, u);
     }
@@ -154,6 +150,10 @@ namespace dgraph {
             sum += forests[i].degree(v);
         }
         return sum;
+    }
+
+    unsigned DynamicGraph::component_size(unsigned v) {
+        return forests[forests.size() - 1].component_size(v);
     }
 
     List* List::add(unsigned v, Edge* edge) {
