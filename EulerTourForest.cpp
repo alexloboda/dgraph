@@ -340,11 +340,11 @@ namespace dgraph {
     }
 
     unsigned EulerTourForest::component_size(unsigned v) {
-        unsigned size = size(v);
-        if (size == 1) {
+        unsigned nodes = size(v);
+        if (nodes == 1) {
             return 1;
         }
-        return size / 2 + 1;
+        return nodes / 2 + 1;
     }
 
     Iterator::Iterator(Entry* entry) :entry(entry){}
