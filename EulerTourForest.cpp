@@ -198,11 +198,12 @@ namespace dgraph {
     TreeEdge EulerTourForest::link(unsigned v, unsigned u) {
         Entry* l = expand(v);
         Entry* r = expand(u);
-        merge(l, r);
+        any_root = merge(l, r);
         return {l, r};
     }
 
     void EulerTourForest::cut(Entry* first, Entry* last) {
+        any_root = nullptr;
         auto first_cut = split(first, true);
         bool right_ordered = first_cut.second != nullptr && find_root(first_cut.second) == find_root(last);
         auto second_cut = split(last, true);
@@ -245,18 +246,62 @@ namespace dgraph {
     void EulerTourForest::change_any(Entry* e) {
         unsigned edges = any[e->v]->edges;
         unsigned v = e->v;
-        changeEdges(v, -edges);
+        change_edges(v, 0);
         any[v] = e;
-        changeEdges(v, edges);
+        change_edges(v, edges);
+    }
+
+    bool EulerTourForest::is_connected() {
+        return any_root != nullptr && any_root->size == 2 * (n - 1);
     }
 
     bool EulerTourForest::is_connected(unsigned v, unsigned u) {
+        if (is_connected()) {
+            return true;
+        }
         return find_root(any[v]) == find_root(any[u]);
     }
 
-    void EulerTourForest::changeEdges(unsigned v, int n) {
+    unsigned EulerTourForest::depth() {
+        Entry* e = any_root;
+        return e->depth(1);
+    }
+
+    unsigned Entry::depth(unsigned value) {
+        unsigned counter = value;
+        if (left != nullptr) {
+            counter += left->depth(value + 1);
+        }
+        if (right != nullptr) {
+            counter += right->depth(value + 1);
+        }
+        return counter;
+    }
+
+    void EulerTourForest::increment_edges(unsigned v) {
         Entry* curr = any[v];
-        curr->edges += n;
+        ++curr->edges;
+        if (curr->edges == 1) {
+            curr->good = true;
+            repair_edges_number(curr->parent);
+        }
+    }
+
+    void EulerTourForest::decrement_edges(unsigned v) {
+        Entry* curr = any[v];
+        --curr->edges;
+        if (curr->edges == 0) {
+            repair_edges_number(curr);
+        }
+    }
+
+    void EulerTourForest::change_edges(unsigned v, unsigned n) {
+        Entry* curr = any[v];
+        curr->edges = n;
+        repair_edges_number(curr);
+    }
+
+    void EulerTourForest::repair_edges_number(Entry* curr){
         while (curr != nullptr) {
             bool good = curr->edges > 0;
             if (curr->left != nullptr) {

@@ -20,9 +20,9 @@ namespace dgraph {
 
     DynamicGraph::~DynamicGraph() {
         for (unsigned i = 0; i < size; i++) {
-            for (unsigned j = 0; j < n; j++){
+            for (unsigned j = 0; j < n; j++) {
                 ListIterator it = adjLists[i][j]->iterator();
-                while (it.hasNext()){
+                while (it.hasNext()) {
                     List* list = *it;
                     it++;
                     delete list->e();
@@ -41,10 +41,9 @@ namespace dgraph {
         if (!is_connected(v, u)) {
             edge->add_tree_edge(forests[n].link(v, u));
         }
-        forests[n].changeEdges(v, 1);
-        forests[n].changeEdges(u, 1);
-        edge->subscribe(adjLists[n][v]->add(u, edge));
-        edge->subscribe(adjLists[n][u]->add(v, edge));
+        forests[n].increment_edges(v);
+        forests[n].increment_edges(u);
+        edge->subscribe(adjLists[n][v]->add(u, edge), adjLists[n][u]->add(v, edge));
         return EdgeToken(edge);
     }
 
@@ -57,14 +56,15 @@ namespace dgraph {
         unsigned u = link->to();
         bool complex_deletion = link->is_tree_edge();
         unsigned level = link->level();
-        forests[level].changeEdges(v, -1);
-        forests[level].changeEdges(u, -1);
 
         if (complex_deletion) {
             for (unsigned i = 0; i <= size - level - 1; i++){
                 forests[size - i - 1].cut(std::move(link->tree_edges[i]));
             }
         }
+
+        forests[level].decrement_edges(v);
+        forests[level].decrement_edges(u);
 
         delete link;
 
@@ -117,19 +117,26 @@ namespace dgraph {
         unsigned w = e->to();
         unsigned lvl = e->lvl--;
         e->removeLinks();
-        e->subscribe(adjLists[lvl - 1][w]->add(v, e));
-        e->subscribe(adjLists[lvl - 1][v]->add(w, e));
-        forests[lvl].changeEdges(w, -1);
-        forests[lvl].changeEdges(v, -1);
-        forests[lvl - 1].changeEdges(w, 1);
-        forests[lvl - 1].changeEdges(v, 1);
+        e->subscribe(adjLists[lvl - 1][w]->add(v, e), adjLists[lvl - 1][v]->add(w, e));
+        forests[lvl].decrement_edges(w);
+        forests[lvl].decrement_edges(v);
+        forests[lvl - 1].increment_edges(w);
+        forests[lvl - 1].increment_edges(v);
         if (e->is_tree_edge()) {
             e->add_tree_edge(forests[lvl - 1].link(v, w));
         }
     }
 
+    unsigned DynamicGraph::depth() {
+        return forests[forests.size() - 1].depth();
+    }
+
     bool DynamicGraph::is_connected(unsigned v, unsigned u) {
         return forests[forests.size() - 1].is_connected(v, u);
+    }
+
+    bool DynamicGraph::is_connected() {
+        return forests[forests.size() - 1].is_connected();
     }
 
     std::string DynamicGraph::str() {
@@ -149,17 +156,10 @@ namespace dgraph {
         return sum;
     }
 
-    List* List::add(unsigned v, Edge* edge, bool in_front) {
-        List* curr = this;
-        List* new_list;
-        if (in_front) {
-            new_list = new List(v, edge, this, next);
-        } else {
-            new_list = new List(v, edge, prev, this);
-            curr = prev;
-        }
-        curr->next->prev = new_list;
-        curr->next = new_list;
+    List* List::add(unsigned v, Edge* edge) {
+        List* new_list = new List(v, edge, prev, this);
+        prev->next = new_list;
+        prev = new_list;
         return new_list;
     }
 
@@ -190,8 +190,9 @@ namespace dgraph {
 
     Edge::Edge(unsigned lvl, unsigned v, unsigned u) : lvl(lvl), v(v), u(u) {}
 
-    void Edge::subscribe(List* link) {
-        links.push_back(link);
+    void Edge::subscribe(List* first, List* second) {
+        first_link = first;
+        second_link = second;
     }
 
     unsigned Edge::level() {
@@ -199,10 +200,10 @@ namespace dgraph {
     }
 
     void Edge::removeLinks() {
-        for(List* l: links){
-            delete l;
-        }
-        links.clear();
+        delete first_link;
+        delete second_link;
+        first_link = nullptr;
+        second_link = nullptr;
     }
 
     unsigned Edge::from() {
@@ -245,6 +246,12 @@ namespace dgraph {
 
     EdgeToken::EdgeToken(EdgeToken&& e) noexcept :edge(e.edge){
         e.edge = nullptr;
+    }
+
+    EdgeToken& EdgeToken::operator=(EdgeToken&& other) noexcept {
+        edge = other.edge;
+        other.edge = nullptr;
+        return *this;
     }
 
     EdgeToken::EdgeToken() :edge(nullptr){}

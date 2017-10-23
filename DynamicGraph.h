@@ -16,13 +16,14 @@ namespace dgraph {
         unsigned lvl;
         unsigned v;
         unsigned u;
-        std::vector<List*> links;
+        List* first_link;
+        List* second_link;
         std::vector<TreeEdge> tree_edges;
-        void subscribe(List*);
+        void subscribe(List*, List*);
         void removeLinks();
         void add_tree_edge(TreeEdge&&);
     public:
-        explicit Edge(unsigned, unsigned , unsigned);
+        explicit Edge(unsigned, unsigned, unsigned);
         ~Edge();
 
         unsigned from();
@@ -40,6 +41,7 @@ namespace dgraph {
         EdgeToken();
         EdgeToken(const EdgeToken&) = delete;
         EdgeToken& operator=(const EdgeToken&) = delete;
+        EdgeToken& operator=(EdgeToken&&) noexcept;
         EdgeToken(EdgeToken&&) noexcept;
         ~EdgeToken() = default;
 
@@ -58,9 +60,11 @@ namespace dgraph {
         DynamicGraph&operator=(const DynamicGraph&) = delete;
         ~DynamicGraph();
 
+        unsigned depth();
         EdgeToken add(unsigned v, unsigned u);
         void remove(EdgeToken&&);
         bool is_connected(unsigned v, unsigned u);
+        bool is_connected();
         std::string str();
         unsigned degree(unsigned v);
     };
@@ -74,7 +78,7 @@ namespace dgraph {
     public:
         List();
 
-        List* add(unsigned , Edge*, bool in_front = false);
+        List* add(unsigned , Edge*);
         ListIterator iterator();
         unsigned vertex();
         Edge* e();

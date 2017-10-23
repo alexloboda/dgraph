@@ -48,6 +48,29 @@ namespace {
             return vis[u];
         }
 
+        bool is_connected() {
+            vector<bool> vis(adj.size(), false);
+            queue<unsigned> q;
+            vis[0] = true;
+            q.push(0);
+            while (!q.empty()) {
+                unsigned w = q.front();
+                q.pop();
+                for (unsigned i = 0; i < adj.size(); i++) {
+                    if (adj[w][i] && !vis[i]) {
+                        vis[i] = true;
+                        q.push(i);
+                    }
+                }
+            }
+            for (int i = 0; i < adj.size(); i++) {
+                if (!vis[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         unsigned degree(unsigned v) {
             unsigned sum = 0;
             for (unsigned i = 0; i < adj.size(); i++) {
@@ -80,6 +103,8 @@ namespace {
             INFO("vertex " << i << " actually has " << reference.degree(i) << " but " << graph.degree(i) << " given");
             REQUIRE(graph.degree(i) == reference.degree(i));
         }
+        INFO("connectivity problem");
+        REQUIRE(graph.is_connected() == reference.is_connected());
     }
 }
 
@@ -104,7 +129,7 @@ TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
     }
 
     SECTION("random operations on small graph"){
-        const unsigned size = 7;
+        const unsigned size = 20;
         const unsigned ops = 10000;
         std::srand(42);
         std::stringstream operations;

@@ -29,6 +29,7 @@ namespace dgraph {
         Iterator iterator();
         bool is_singleton();
         std::string str();
+        unsigned depth(unsigned);
 
         friend Entry* merge(Entry*, Entry*);
         friend std::pair<Entry*, Entry*> split(Entry*, bool);
@@ -64,11 +65,13 @@ namespace dgraph {
     class EulerTourForest {
         int n;
         std::vector<Entry*> any;
+        Entry* any_root;
         Entry* make_root(unsigned v);
         Entry* expand(unsigned v);
         void change_any(Entry* e);
         void cutoff(Entry* e, Entry* replacement = nullptr);
         void cut(Entry*, Entry*);
+        void repair_edges_number(Entry*);
 
     public:
         explicit EulerTourForest(unsigned);
@@ -77,10 +80,14 @@ namespace dgraph {
         EulerTourForest(EulerTourForest&&) noexcept;
         ~EulerTourForest();
 
+        unsigned depth();
         bool is_connected(unsigned v, unsigned u);
+        bool is_connected();
         TreeEdge link(unsigned v, unsigned u);
         void cut(TreeEdge&&);
-        void changeEdges(unsigned v, int n);
+        void increment_edges(unsigned v);
+        void decrement_edges(unsigned v);
+        void change_edges(unsigned v, unsigned n);
         unsigned size(unsigned v);
         Iterator iterator(unsigned v);
         std::string str();
