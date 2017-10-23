@@ -82,6 +82,7 @@ namespace dgraph {
 
         unsigned depth();
         bool is_connected(unsigned v, unsigned u);
+        bool is_connected();
         TreeEdge link(unsigned v, unsigned u);
         void cut(TreeEdge&&);
         void increment_edges(unsigned v);

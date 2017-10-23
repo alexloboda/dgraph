@@ -30,11 +30,14 @@ namespace {
         Shuffler(string filename, long permutations, long n) : graph(n), n(n) {
             ifstream fin(filename);
             random_device rd;
-            mersenne = mt19937(43);
+            mersenne = mt19937(rd());
             edges.resize(n, vector<bool>(n, false));
             unsigned v, u;
             while (fin >> v >> u) {
                 if (v == u) {
+                    continue;
+                }
+                if (edges[v][u]) {
                     continue;
                 }
                 EdgeToken token = graph.add(v, u);
@@ -47,8 +50,11 @@ namespace {
             rng_for_ends = uniform_int_distribution<unsigned>(0, 3);
         }
 
-        unsigned depth(){
-            return graph.depth();
+        void print(ostream& out) {
+            for (pair<unsigned, unsigned> end : ends) {
+                out << end.first << "\t" << end.second << "\n";
+            }
+            out.flush();
         }
 
         void shakeit(){
@@ -73,14 +79,14 @@ namespace {
 
                 if (e1 == e2)
                     continue;
-                if (v == z || w == u || edges[v][z] || edges[w][u]) {
+                if (v == z || w == u || v == w || u == z || edges[v][z] || edges[w][u]) {
                     continue;
                 }
                 graph.remove(std::move(tokens[e1]));
                 graph.remove(std::move(tokens[e2]));
                 tokens[e1] = std::move(graph.add(v, z));
                 tokens[e2] = std::move(graph.add(w, u));
-                if (graph.is_connected(v, u) && graph.is_connected(w, z)) {
+                if (graph.is_connected()) {
                     edges[v][u] = false;
                     edges[u][v] = false;
                     edges[w][z] = false;
@@ -104,17 +110,15 @@ namespace {
 
 
 int main(int argc, char** argv) {
-    ProfilerStart("../a.prof");
-    istringstream pss(argv[1]);
+    istringstream pss(argv[2]);
     unsigned permutations;
     pss >> permutations;
-    istringstream nss(argv[2]);
+    istringstream nss(argv[1]);
     unsigned n;
     nss >> n;
-    Shuffler s("../net", permutations, n);
+    Shuffler s(argv[3], permutations, n);
     for (int i = 0; i < permutations; i++) {
         s.shakeit();
     }
-    std::cout << s.depth() / (double)n << std::endl;
-    ProfilerStop();
+    s.print(cout);
 }

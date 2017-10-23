@@ -251,8 +251,12 @@ namespace dgraph {
         change_edges(v, edges);
     }
 
+    bool EulerTourForest::is_connected() {
+        return any_root != nullptr && any_root->size == 2 * (n - 1);
+    }
+
     bool EulerTourForest::is_connected(unsigned v, unsigned u) {
-        if (any_root != nullptr && any_root->size == 2 * (n - 1)) {
+        if (is_connected()) {
             return true;
         }
         return find_root(any[v]) == find_root(any[u]);

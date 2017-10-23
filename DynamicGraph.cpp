@@ -20,9 +20,9 @@ namespace dgraph {
 
     DynamicGraph::~DynamicGraph() {
         for (unsigned i = 0; i < size; i++) {
-            for (unsigned j = 0; j < n; j++){
+            for (unsigned j = 0; j < n; j++) {
                 ListIterator it = adjLists[i][j]->iterator();
-                while (it.hasNext()){
+                while (it.hasNext()) {
                     List* list = *it;
                     it++;
                     delete list->e();
@@ -135,6 +135,10 @@ namespace dgraph {
         return forests[forests.size() - 1].is_connected(v, u);
     }
 
+    bool DynamicGraph::is_connected() {
+        return forests[forests.size() - 1].is_connected();
+    }
+
     std::string DynamicGraph::str() {
         std::string str;
         for(unsigned i = 0; i < size; i++){
@@ -150,13 +154,6 @@ namespace dgraph {
             sum += forests[i].degree(v);
         }
         return sum;
-    }
-
-    List* List::add_to_front(unsigned v, Edge* edge){
-        List* new_list = new List(v, edge, this, next);
-        next->prev = new_list;
-        next = new_list;
-        return new_list;
     }
 
     List* List::add(unsigned v, Edge* edge) {
@@ -194,7 +191,8 @@ namespace dgraph {
     Edge::Edge(unsigned lvl, unsigned v, unsigned u) : lvl(lvl), v(v), u(u) {}
 
     void Edge::subscribe(List* first, List* second) {
-        links = std::make_pair(first, second);
+        first_link = first;
+        second_link = second;
     }
 
     unsigned Edge::level() {
@@ -202,9 +200,10 @@ namespace dgraph {
     }
 
     void Edge::removeLinks() {
-        delete links.first;
-        delete links.second;
-        links = std::make_pair(nullptr, nullptr);
+        delete first_link;
+        delete second_link;
+        first_link = nullptr;
+        second_link = nullptr;
     }
 
     unsigned Edge::from() {

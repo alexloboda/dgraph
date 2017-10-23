@@ -16,13 +16,14 @@ namespace dgraph {
         unsigned lvl;
         unsigned v;
         unsigned u;
-        std::pair<List*, List*> links;
+        List* first_link;
+        List* second_link;
         std::vector<TreeEdge> tree_edges;
         void subscribe(List*, List*);
         void removeLinks();
         void add_tree_edge(TreeEdge&&);
     public:
-        explicit Edge(unsigned, unsigned , unsigned);
+        explicit Edge(unsigned, unsigned, unsigned);
         ~Edge();
 
         unsigned from();
@@ -63,6 +64,7 @@ namespace dgraph {
         EdgeToken add(unsigned v, unsigned u);
         void remove(EdgeToken&&);
         bool is_connected(unsigned v, unsigned u);
+        bool is_connected();
         std::string str();
         unsigned degree(unsigned v);
     };
@@ -77,7 +79,6 @@ namespace dgraph {
         List();
 
         List* add(unsigned , Edge*);
-        List* add_to_front(unsigned , Edge*);
         ListIterator iterator();
         unsigned vertex();
         Edge* e();
