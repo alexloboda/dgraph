@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.5)
 project(dgraph)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -15,4 +15,4 @@ set(TEST_SOURCES
         test/ETFtests.cpp)
 
 add_executable(tests ${SOURCE_FILES} ${TEST_SOURCES})
-add_library(dgraph ${SOURCE_FILES} Main.cpp)
+add_library(dgraph ${SOURCE_FILES})
