@@ -8,24 +8,23 @@ namespace {
 }
 
 namespace dgraph {
-    class List;
-    class ListIterator;
     class DynamicGraph;
 
     class Edge {
         unsigned lvl;
         unsigned v;
         unsigned u;
-        List* first_link;
-        List* second_link;
+        unsigned first_pos;
+        unsigned second_pos;
         std::vector<TreeEdge> tree_edges;
-        void subscribe(List*, List*);
+        void subscribe(unsigned, unsigned);
         void removeLinks();
         void add_tree_edge(TreeEdge&&);
     public:
         explicit Edge(unsigned, unsigned, unsigned);
-        ~Edge();
+        ~Edge() = default;
 
+        void change_pos(unsigned, unsigned);
         unsigned from();
         unsigned to();
         unsigned level();
@@ -52,7 +51,8 @@ namespace dgraph {
         unsigned n;
         unsigned size;
         vector<EulerTourForest> forests;
-        vector<vector<List*>> adjLists;
+        vector<vector<vector<Edge*>>> adjLists;
+        vector<vector<unsigned>> threshold;
         void downgrade(Edge* e);
     public:
         explicit DynamicGraph(unsigned n);
@@ -60,41 +60,12 @@ namespace dgraph {
         DynamicGraph&operator=(const DynamicGraph&) = delete;
         ~DynamicGraph();
 
-        unsigned depth();
         EdgeToken add(unsigned v, unsigned u);
         void remove(EdgeToken&&);
         bool is_connected(unsigned v, unsigned u);
         bool is_connected();
         std::string str();
         unsigned degree(unsigned v);
-    };
-
-    class List {
-        Edge* edge;
-        unsigned u;
-        List* next;
-        List* prev;
-        List(unsigned, Edge*, List*, List*);
-    public:
-        List();
-
-        List* add(unsigned , Edge*);
-        ListIterator iterator();
-        unsigned vertex();
-        Edge* e();
-        ~List();
-
-        friend class Edge;
-        friend class ListIterator;
-    };
-
-    class ListIterator {
-        List* list;
-    public:
-        explicit ListIterator(List*);
-        ListIterator operator++(int);
-        List* operator*();
-        bool hasNext();
     };
 }
 

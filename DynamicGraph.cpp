@@ -6,14 +6,22 @@
 #include <iostream>
 
 namespace dgraph {
+    void swap(vector<Edge*>& adj, unsigned i, unsigned j) {
+        std::swap(adj[i], adj[j]);
+        adj[i]->change_pos(j, i);
+        adj[j]->change_pos(i, j);
+    }
 
     DynamicGraph::DynamicGraph(unsigned n) : n(n) {
         size = std::lround(std::ceil(std::log2(n)) + 1);
         for (unsigned i = 0; i < size; i++) {
             forests.emplace_back(n);
             adjLists.emplace_back();
+            threshold.emplace_back();
             for (unsigned j = 0; j < n; j++){
-                adjLists[i].push_back(new List());
+                adjLists[i].push_back(vector<Edge*>());
+                threshold[i].push_back(0);
+
             }
         }
     }
@@ -21,13 +29,9 @@ namespace dgraph {
     DynamicGraph::~DynamicGraph() {
         for (unsigned i = 0; i < size; i++) {
             for (unsigned j = 0; j < n; j++) {
-                ListIterator it = adjLists[i][j]->iterator();
-                while (it.hasNext()) {
-                    List* list = *it;
-                    it++;
-                    delete list->e();
+                for (Edge* e : adjLists[i][j]) {
+                    delete e;
                 }
-                delete *it;
             }
         }
     }
@@ -127,10 +131,6 @@ namespace dgraph {
         }
     }
 
-    unsigned DynamicGraph::depth() {
-        return forests[forests.size() - 1].depth();
-    }
-
     bool DynamicGraph::is_connected(unsigned v, unsigned u) {
         return forests[forests.size() - 1].is_connected(v, u);
     }
@@ -156,43 +156,11 @@ namespace dgraph {
         return sum;
     }
 
-    List* List::add(unsigned v, Edge* edge) {
-        List* new_list = new List(v, edge, prev, this);
-        prev->next = new_list;
-        prev = new_list;
-        return new_list;
-    }
-
-    List::~List() {
-        next->prev = prev;
-        prev->next = next;
-    }
-
-    List::List(unsigned u, Edge* edge, List* prev, List* next) :u(u), edge(edge), prev(prev), next(next){}
-
-    List::List() :edge(nullptr) {
-        next = this;
-        prev = this;
-        u = std::numeric_limits<unsigned>::max();
-    }
-
-    ListIterator List::iterator() {
-        return ListIterator(next);
-    }
-
-    unsigned List::vertex() {
-        return u;
-    }
-
-    Edge* List::e() {
-        return edge;
-    }
-
     Edge::Edge(unsigned lvl, unsigned v, unsigned u) : lvl(lvl), v(v), u(u) {}
 
-    void Edge::subscribe(List* first, List* second) {
-        first_link = first;
-        second_link = second;
+    void Edge::subscribe(unsigned first, unsigned second) {
+        first_pos = first;
+        second_pos = second;
     }
 
     unsigned Edge::level() {
@@ -222,24 +190,12 @@ namespace dgraph {
         return !tree_edges.empty();
     }
 
-    Edge::~Edge() {
-        removeLinks();
-    }
-
-    ListIterator::ListIterator(List* list) :list(list) {}
-
-    ListIterator ListIterator::operator++(int) {
-        ListIterator state(list);
-        list = list->next;
-        return state;
-    }
-
-    List* ListIterator::operator*() {
-        return list;
-    }
-
-    bool ListIterator::hasNext() {
-        return list->edge != nullptr;
+    void Edge::change_pos(unsigned vertex, unsigned pos) {
+        if (u == vertex) {
+            first_pos = pos;
+        } else {
+            second_pos = pos;
+        }
     }
 
     EdgeToken::EdgeToken(Edge* edge) :edge(edge){}
