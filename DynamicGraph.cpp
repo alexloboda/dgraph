@@ -6,11 +6,11 @@
 #include <iostream>
 
 namespace dgraph {
-    void swap(vector<Edge*>& adj, unsigned i, unsigned j) {
+    void swap(vector<Edge*>& adj, unsigned w, unsigned i, unsigned j) {
         if (i != j) {
             std::swap(adj[i], adj[j]);
-            adj[i]->change_pos(j, i);
-            adj[j]->change_pos(i, j);
+            adj[i]->change_pos(w, i);
+            adj[j]->change_pos(w, j);
         }
     }
 
@@ -23,17 +23,6 @@ namespace dgraph {
             for (unsigned j = 0; j < n; j++){
                 adjLists[i].emplace_back();
                 threshold[i].push_back(0);
-
-            }
-        }
-    }
-
-    DynamicGraph::~DynamicGraph() {
-        for (unsigned i = 0; i < size; i++) {
-            for (unsigned j = 0; j < n; j++) {
-                for (Edge* e : adjLists[i][j]) {
-                    delete e;
-                }
             }
         }
     }
@@ -49,8 +38,8 @@ namespace dgraph {
         adjLists[n][u].push_back(e);
         if (e->is_tree_edge()) {
             // tree edges should be in front of adj list
-            swap(adjLists[n][v], vs, threshold[n][v]++);
-            swap(adjLists[n][u], us, threshold[n][u]++);
+            swap(adjLists[n][v], v, vs, threshold[n][v]++);
+            swap(adjLists[n][u], u, us, threshold[n][u]++);
         }
 
     }
@@ -61,12 +50,12 @@ namespace dgraph {
         }
         unsigned n = size - 1;
         auto* edge = new Edge(n, v, u);
-        add_links(edge);
-        forests[n].increment_edges(v);
-        forests[n].increment_edges(u);
         if (!is_connected(v, u)) {
             edge->add_tree_edge(forests[n].link(v, u));
         }
+        add_links(edge);
+        forests[n].increment_edges(v);
+        forests[n].increment_edges(u);
         return EdgeToken(edge);
     }
 
@@ -75,10 +64,10 @@ namespace dgraph {
         if (link == nullptr) {
             return;
         }
-        unsigned v = link->from();
-        unsigned u = link->to();
+        unsigned v = link->v;
+        unsigned u = link->u;
         bool complex_deletion = link->is_tree_edge();
-        unsigned level = link->level();
+        unsigned level = link->lvl;
 
         if (complex_deletion) {
             for (unsigned i = 0; i <= size - level - 1; i++){
@@ -105,14 +94,16 @@ namespace dgraph {
                 while(it.hasNext()){
                     unsigned w = *it;
                     auto& list = adjLists[i][w];
+                    unsigned thres = threshold[i][w];
+                    for (unsigned j = 0; j < thres; j++) {
+                        downgrade(list[0]);
+                    }
                     for (unsigned j = 0; j < list.size(); j++) {
-                        if (replacement != nullptr && i == threshold[i][w]) {
-                            break;
-                        }
-                        Edge* e = adjLists[i][w][j];
+                        Edge* e = list[j];
                         unsigned up = e->opposite(w);
                         if (is_connected(up, u)) {
                             replacement = e;
+                            break;
                         } else {
                             downgrade(e);
                             j--;
@@ -125,8 +116,8 @@ namespace dgraph {
                     // Make tree edge be in the right place in adj
                     unsigned v = replacement->v;
                     unsigned u = replacement->u;
-                    swap(adjLists[i][v], replacement->first_pos, threshold[i][v]++);
-                    swap(adjLists[i][u], replacement->second_pos, threshold[i][u]++);
+                    swap(adjLists[i][v], v, replacement->first_pos, threshold[i][v]++);
+                    swap(adjLists[i][u], u, replacement->second_pos, threshold[i][u]++);
                     for (unsigned j = size - 1; j >= i; j--){
                         replacement->add_tree_edge(forests[j].link(replacement->v, replacement->u));
                     }
@@ -183,11 +174,11 @@ namespace dgraph {
         auto& vs = adjLists[lvl][v];
         auto& us = adjLists[lvl][u];
         if (e->is_tree_edge()) {
-            swap(vs, e->first_pos, threshold[lvl][v] - 1);
-            swap(us, e->second_pos, threshold[lvl][u] - 1);
+            swap(vs, v, e->first_pos, --threshold[lvl][v]);
+            swap(us, u, e->second_pos, --threshold[lvl][u]);
         }
-        swap(vs, e->first_pos, vs.size() - 1);
-        swap(us, e->second_pos, us.size() - 1);
+        swap(vs, v, e->first_pos, vs.size() - 1);
+        swap(us, u, e->second_pos, us.size() - 1);
         vs.pop_back();
         us.pop_back();
     }
@@ -220,7 +211,7 @@ namespace dgraph {
     }
 
     void Edge::change_pos(unsigned vertex, unsigned pos) {
-        if (u == vertex) {
+        if (v == vertex) {
             first_pos = pos;
         } else {
             second_pos = pos;
@@ -228,7 +219,7 @@ namespace dgraph {
     }
 
     unsigned Edge::opposite(unsigned w) {
-        return v = w ? u : v;
+        return v == w ? u : v;
     }
 
     EdgeToken::EdgeToken(Edge* edge) :edge(edge){}

@@ -60,7 +60,7 @@ namespace dgraph {
         explicit DynamicGraph(unsigned n);
         DynamicGraph(const DynamicGraph&) = delete;
         DynamicGraph&operator=(const DynamicGraph&) = delete;
-        ~DynamicGraph();
+        ~DynamicGraph() = default;
 
         EdgeToken add(unsigned v, unsigned u);
         void remove(EdgeToken&&);

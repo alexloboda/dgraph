@@ -110,6 +110,7 @@ namespace {
 
 
 int main(int argc, char** argv) {
+    ProfilerStart("a.prof");
     istringstream pss(argv[2]);
     unsigned permutations;
     pss >> permutations;
@@ -121,4 +122,5 @@ int main(int argc, char** argv) {
         s.shakeit();
     }
     s.print(cout);
+    ProfilerStop();
 }

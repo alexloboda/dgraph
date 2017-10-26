@@ -16,3 +16,4 @@ set(TEST_SOURCES
 
 add_executable(tests ${SOURCE_FILES} ${TEST_SOURCES})
 add_executable(dgraph ${SOURCE_FILES} Main.cpp)
+target_link_libraries(dgraph profiler)
