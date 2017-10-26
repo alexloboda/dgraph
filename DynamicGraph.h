@@ -18,12 +18,12 @@ namespace dgraph {
         unsigned second_pos;
         std::vector<TreeEdge> tree_edges;
         void subscribe(unsigned, unsigned);
-        void removeLinks();
         void add_tree_edge(TreeEdge&&);
     public:
         explicit Edge(unsigned, unsigned, unsigned);
         ~Edge() = default;
 
+        unsigned opposite(unsigned);
         void change_pos(unsigned, unsigned);
         unsigned from();
         unsigned to();
@@ -54,6 +54,8 @@ namespace dgraph {
         vector<vector<vector<Edge*>>> adjLists;
         vector<vector<unsigned>> threshold;
         void downgrade(Edge* e);
+        void add_links(Edge*);
+        void remove_links(Edge*);
     public:
         explicit DynamicGraph(unsigned n);
         DynamicGraph(const DynamicGraph&) = delete;
