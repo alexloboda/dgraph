@@ -62,8 +62,9 @@ namespace dgraph {
         DynamicGraph&operator=(const DynamicGraph&) = delete;
         ~DynamicGraph() = default;
 
-        EdgeToken add(unsigned v, unsigned u);
-        void remove(EdgeToken&&);
+        bool allows_flip(EdgeToken&, EdgeToken&);
+        EdgeToken add(unsigned v, unsigned u, bool reuse = false);
+        void remove(EdgeToken&& token, bool reuse = false);
         bool is_connected(unsigned v, unsigned u);
         bool is_connected();
         std::string str();

@@ -6,11 +6,13 @@
 #include <iostream>
 
 namespace dgraph {
-    void swap(vector<Edge*>& adj, unsigned w, unsigned i, unsigned j) {
+    void swap(vector<Edge*>& adj, unsigned w, unsigned i, unsigned j, bool keep = true) {
         if (i != j) {
             std::swap(adj[i], adj[j]);
             adj[i]->change_pos(w, i);
-            adj[j]->change_pos(w, j);
+            if (keep) {
+                adj[j]->change_pos(w, j);
+            }
         }
     }
 
@@ -44,7 +46,7 @@ namespace dgraph {
 
     }
 
-    EdgeToken DynamicGraph::add(unsigned v, unsigned u) {
+    EdgeToken DynamicGraph::add(unsigned v, unsigned u, bool reuse) {
         if (v == u) {
             return EdgeToken(nullptr);
         }
@@ -54,12 +56,14 @@ namespace dgraph {
             edge->add_tree_edge(forests[n].link(v, u));
         }
         add_links(edge);
-        forests[n].increment_edges(v);
-        forests[n].increment_edges(u);
+        if (!reuse) {
+            forests[n].increment_edges(v);
+            forests[n].increment_edges(u);
+        }
         return EdgeToken(edge);
     }
 
-    void DynamicGraph::remove(EdgeToken&& edge_token) {
+    void DynamicGraph::remove(EdgeToken&& edge_token, bool reuse) {
         Edge* link = edge_token.edge;
         if (link == nullptr) {
             return;
@@ -75,10 +79,13 @@ namespace dgraph {
             }
         }
 
-        forests[level].decrement_edges(v);
-        forests[level].decrement_edges(u);
+        if (!reuse) {
+            forests[level].decrement_edges(v);
+            forests[level].decrement_edges(u);
+        }
 
         remove_links(link);
+        delete link;
 
         if (complex_deletion) {
             for (unsigned i = level; i < size; i++){
@@ -177,10 +184,14 @@ namespace dgraph {
             swap(vs, v, e->first_pos, --threshold[lvl][v]);
             swap(us, u, e->second_pos, --threshold[lvl][u]);
         }
-        swap(vs, v, e->first_pos, vs.size() - 1);
-        swap(us, u, e->second_pos, us.size() - 1);
+        swap(vs, v, e->first_pos, vs.size() - 1, false);
+        swap(us, u, e->second_pos, us.size() - 1, false);
         vs.pop_back();
         us.pop_back();
+    }
+
+    bool DynamicGraph::allows_flip(EdgeToken& e, EdgeToken& f) {
+        return e.edge->lvl == size - 1 && f.edge->lvl == size - 1;
     }
 
     Edge::Edge(unsigned lvl, unsigned v, unsigned u) : lvl(lvl), v(v), u(u) {}

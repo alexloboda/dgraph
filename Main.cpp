@@ -82,11 +82,15 @@ namespace {
                 if (v == z || w == u || v == w || u == z || edges[v][z] || edges[w][u]) {
                     continue;
                 }
-                graph.remove(std::move(tokens[e1]));
-                graph.remove(std::move(tokens[e2]));
-                tokens[e1] = std::move(graph.add(v, z));
-                tokens[e2] = std::move(graph.add(w, u));
+                EdgeToken e = std::move(tokens[e1]);
+                EdgeToken f = std::move(tokens[e2]);
+                bool reuse = graph.allows_flip(e, f);
+                graph.remove(std::move(e), reuse);
+                graph.remove(std::move(f), reuse);
+                tokens[e1] = std::move(graph.add(v, z, reuse));
+                tokens[e2] = std::move(graph.add(w, u, reuse));
                 if (graph.is_connected()) {
+                    if (v > u)
                     edges[v][u] = false;
                     edges[u][v] = false;
                     edges[w][z] = false;
