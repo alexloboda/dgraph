@@ -1,9 +1,9 @@
+#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
 #include "../DynamicGraph.h"
 #include <queue>
 #include <random>
-#include <map>
 
 namespace {
     using std::vector;
