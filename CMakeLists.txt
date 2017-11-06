@@ -11,8 +11,7 @@ set(SOURCE_FILES
 
 set(TEST_SOURCES
         test/catch.hpp
-        test/DynamicGraphTests.cpp
-        test/ETFtests.cpp)
+        test/DynamicGraphTests.cpp)
 
 add_executable(tests ${SOURCE_FILES} ${TEST_SOURCES})
-add_executable(dgraph ${SOURCE_FILES} Main.cpp)
+add_library(dgraph ${SOURCE_FILES})
