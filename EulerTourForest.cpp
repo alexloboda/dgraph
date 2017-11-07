@@ -148,14 +148,15 @@ namespace dgraph {
         }
     }
 
-    EulerTourForest::EulerTourForest(unsigned n) : n(n) {
+    EulerTourForest::EulerTourForest(unsigned n) : n(n), any_root(nullptr) {
         for (unsigned i = 0; i < n; i++) {
             auto* vertex = new Entry(i);
             any.push_back(vertex);
         }
     }
 
-    EulerTourForest::EulerTourForest(EulerTourForest&& forest) noexcept :n(forest.n), any(std::move(forest.any)) {
+    EulerTourForest::EulerTourForest(EulerTourForest&& forest) noexcept :n(forest.n), any(std::move(forest.any)),
+                                                                         any_root(forest.any_root) {
         forest.n = 0;
     }
 
