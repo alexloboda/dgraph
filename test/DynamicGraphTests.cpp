@@ -108,6 +108,14 @@ namespace {
     }
 }
 
+TEST_CASE("double std::moving of a token", "[dg_ref]") {
+    dgraph::DynamicGraph graph(3);
+    auto token = graph.add(0, 1);
+    graph.remove(std::move(token));
+    graph.remove(std::move(token));
+    REQUIRE(token.moved());
+}
+
 TEST_CASE("dynamic graphs work fine on simple tests", "[dg]"){
     SECTION("simple triangle test") {
         dgraph::DynamicGraph graph(3);
